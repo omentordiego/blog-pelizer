@@ -26,16 +26,12 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blog-primary to-blog-secondary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">PV</span>
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-serif font-bold text-blog-primary">
-                Ponto de Vista
-              </h1>
-              <p className="text-xs text-gray-500 -mt-1">Por Pelizer</p>
-            </div>
+          <Link to="/" className="flex items-center">
+            <img 
+              src="https://i.postimg.cc/LX2bQXqH/PONTO-DE-VISTA.png" 
+              alt="Ponto de Vista" 
+              className="h-10 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}

@@ -95,14 +95,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="col-span-1">
-            <Link to="/" className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-blog-primary font-bold">PV</span>
-              </div>
-              <div>
-                <h3 className="text-lg font-serif font-bold">Ponto de Vista</h3>
-                <p className="text-blue-200 text-sm">Por Pelizer</p>
-              </div>
+            <Link to="/" className="flex items-center mb-4">
+              <img 
+                src="https://i.postimg.cc/LX2bQXqH/PONTO-DE-VISTA.png" 
+                alt="Ponto de Vista" 
+                className="h-12 w-auto brightness-0 invert"
+              />
             </Link>
             <p className="text-blue-100 text-sm mb-4">
               Educação política com opinião, clareza e posicionamento. 
