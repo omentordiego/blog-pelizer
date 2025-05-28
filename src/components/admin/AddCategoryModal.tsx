@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,10 +13,11 @@ const AddCategoryModal = () => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { addCategory } = useCategories();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!name.trim()) {
@@ -28,18 +29,32 @@ const AddCategoryModal = () => {
       return;
     }
 
-    // Adicionar categoria usando o contexto
-    addCategory({ name: name.trim(), description: description.trim() });
-    
-    toast({
-      title: "Sucesso",
-      description: "Categoria criada com sucesso!",
-    });
+    setIsSubmitting(true);
 
-    // Resetar formulário e fechar modal
-    setName('');
-    setDescription('');
-    setOpen(false);
+    try {
+      // Adicionar categoria usando o contexto
+      await addCategory({ name: name.trim(), description: description.trim() });
+      
+      toast({
+        title: "Sucesso",
+        description: "Categoria criada com sucesso!",
+      });
+
+      // Resetar formulário e fechar modal
+      setName('');
+      setDescription('');
+      setOpen(false);
+    } catch (error) {
+      console.error('Erro ao criar categoria:', error);
+      
+      toast({
+        title: "Erro",
+        description: "Não foi possível criar a categoria. Verifique suas permissões.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -53,6 +68,9 @@ const AddCategoryModal = () => {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="font-heading text-xl">Adicionar Nova Categoria</DialogTitle>
+          <DialogDescription>
+            Crie uma nova categoria para organizar os artigos do blog.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -63,6 +81,7 @@ const AddCategoryModal = () => {
               onChange={(e) => setName(e.target.value)}
               placeholder="Digite o nome da categoria"
               required
+              disabled={isSubmitting}
             />
           </div>
           <div className="space-y-2">
@@ -73,6 +92,7 @@ const AddCategoryModal = () => {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Digite uma descrição para a categoria"
               rows={3}
+              disabled={isSubmitting}
             />
           </div>
           <div className="flex justify-end gap-2">
@@ -81,14 +101,16 @@ const AddCategoryModal = () => {
               variant="outline" 
               onClick={() => setOpen(false)}
               className="hover:bg-gray-50 transition-colors duration-200"
+              disabled={isSubmitting}
             >
               Cancelar
             </Button>
             <Button 
               type="submit"
               className="bg-blog-primary hover:bg-blog-secondary transition-all duration-200 hover:scale-105"
+              disabled={isSubmitting}
             >
-              Criar Categoria
+              {isSubmitting ? 'Criando...' : 'Criar Categoria'}
             </Button>
           </div>
         </form>

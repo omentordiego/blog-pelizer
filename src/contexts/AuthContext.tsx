@@ -30,9 +30,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Verificar se há um usuário logado no localStorage
-    const savedUser = localStorage.getItem('auth_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    try {
+      const savedUser = localStorage.getItem('auth_user');
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+      }
+    } catch (error) {
+      console.error('Erro ao recuperar usuário do localStorage:', error);
+      localStorage.removeItem('auth_user');
     }
     setIsLoading(false);
   }, []);
@@ -40,22 +46,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
-    // Simular autenticação (em produção, seria uma chamada à API)
-    if (email === 'admin@pontovista.com' && password === 'admin123') {
-      const user = {
-        id: '1',
-        email: 'admin@pontovista.com',
-        name: 'Vanderlei Pelizer'
-      };
+    try {
+      // Simular autenticação (em produção, seria uma chamada à API)
+      if (email === 'admin@pontovista.com' && password === 'admin123') {
+        const user = {
+          id: '1',
+          email: 'admin@pontovista.com',
+          name: 'Vanderlei Pelizer'
+        };
+        
+        setUser(user);
+        localStorage.setItem('auth_user', JSON.stringify(user));
+        setIsLoading(false);
+        return true;
+      }
       
-      setUser(user);
-      localStorage.setItem('auth_user', JSON.stringify(user));
       setIsLoading(false);
-      return true;
+      return false;
+    } catch (error) {
+      console.error('Erro no login:', error);
+      setIsLoading(false);
+      return false;
     }
-    
-    setIsLoading(false);
-    return false;
   };
 
   const logout = () => {
@@ -63,8 +75,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem('auth_user');
   };
 
+  const value = {
+    user,
+    login,
+    logout,
+    isLoading
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
