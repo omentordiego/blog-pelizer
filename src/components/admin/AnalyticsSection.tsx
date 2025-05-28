@@ -17,7 +17,7 @@ const AnalyticsSection = () => {
         <CardContent>
           <div className="space-y-4">
             {articles
-              .sort((a, b) => b.views - a.views)
+              .sort((a, b) => (b.views || 0) - (a.views || 0))
               .slice(0, 5)
               .map((article, index) => (
                 <div key={article.id} className="flex items-center gap-3">
@@ -26,7 +26,7 @@ const AnalyticsSection = () => {
                   </div>
                   <div className="flex-1">
                     <div className="font-medium text-gray-900 text-sm font-heading">{article.title}</div>
-                    <div className="text-xs text-gray-500">{article.views} visualizações</div>
+                    <div className="text-xs text-gray-500">{article.views || 0} visualizações</div>
                   </div>
                 </div>
               ))}
@@ -42,7 +42,7 @@ const AnalyticsSection = () => {
           <div className="space-y-4">
             {categories.map((category) => {
               const categoryArticles = articles.filter(a => a.category_id === category.id);
-              const totalViews = categoryArticles.reduce((sum, article) => sum + article.views, 0);
+              const totalViews = categoryArticles.reduce((sum, article) => sum + (article.views || 0), 0);
               return (
                 <div key={category.id} className="flex items-center justify-between">
                   <div>

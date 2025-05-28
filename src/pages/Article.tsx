@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Eye, User, ArrowLeft, Share2, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
@@ -36,8 +35,8 @@ const Article = () => {
     );
   }
 
-  const category = getCategoryById(categories, article.category_id);
-  const formattedDate = new Date(article.published_at).toLocaleDateString('pt-BR', {
+  const category = article.category_id ? getCategoryById(categories, article.category_id) : null;
+  const formattedDate = new Date(article.published_at || article.created_at).toLocaleDateString('pt-BR', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -126,7 +125,7 @@ const Article = () => {
 
             {/* Summary */}
             <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-              {article.summary}
+              {article.summary || 'Resumo não disponível'}
             </p>
 
             {/* Meta Information */}
@@ -142,7 +141,7 @@ const Article = () => {
                 </div>
                 <div className="flex items-center gap-1">
                   <Eye className="w-4 h-4" />
-                  <span>{article.views} visualizações</span>
+                  <span>{article.views || 0} visualizações</span>
                 </div>
               </div>
 
@@ -187,7 +186,7 @@ const Article = () => {
             {/* Featured Image */}
             <div className="mb-8">
               <img
-                src={article.cover_image}
+                src={article.cover_image || '/placeholder.svg'}
                 alt={article.title}
                 className="w-full h-64 lg:h-96 object-cover rounded-lg"
               />
@@ -196,7 +195,7 @@ const Article = () => {
             {/* Article Content */}
             <div 
               className="prose prose-lg max-w-none mb-12"
-              dangerouslySetInnerHTML={{ __html: article.content }}
+              dangerouslySetInnerHTML={{ __html: article.content || '' }}
             />
 
             {/* Author Info */}
