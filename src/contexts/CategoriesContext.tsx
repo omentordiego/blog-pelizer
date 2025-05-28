@@ -1,22 +1,25 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface Category {
   id: string;
   name: string;
-  description: string;
   slug: string;
-  color?: string;
+  description?: string;
+  color: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface CategoriesContextType {
   categories: Category[];
-  addCategory: (category: Omit<Category, 'id' | 'slug'>) => Promise<void>;
+  isLoading: boolean;
+  addCategory: (category: Omit<Category, 'id' | 'slug' | 'created_at' | 'updated_at'>) => Promise<void>;
   updateCategory: (id: string, category: Partial<Category>) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
   refreshCategories: () => Promise<void>;
-  isLoading: boolean;
 }
 
 const CategoriesContext = createContext<CategoriesContextType | null>(null);
@@ -32,129 +35,113 @@ export const useCategories = () => {
 export const CategoriesProvider = ({ children }: { children: React.ReactNode }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
-  const generateSlug = (name: string): string => {
+  const generateSlug = (name: string) => {
     return name
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
   };
 
   const fetchCategories = async () => {
     try {
-      console.log('Buscando categorias...');
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('name');
 
       if (error) {
         console.error('Erro ao buscar categorias:', error);
-        // Em caso de erro, usar dados mock temporariamente
-        setCategories([
-          {
-            id: '1',
-            name: 'Política Nacional',
-            description: 'Análises sobre a política brasileira',
-            slug: 'politica-nacional',
-            color: '#0A1D56'
-          },
-          {
-            id: '2',
-            name: 'Economia',
-            description: 'Análises econômicas e políticas públicas',
-            slug: 'economia',
-            color: '#60A5FA'
-          }
-        ]);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar as categorias.",
+          variant: "destructive",
+        });
         return;
       }
 
       setCategories(data || []);
     } catch (error) {
       console.error('Erro ao buscar categorias:', error);
-      // Fallback para dados mock
-      setCategories([]);
+      toast({
+        title: "Erro",
+        description: "Erro inesperado ao carregar categorias.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const addCategory = async (categoryData: Omit<Category, 'id' | 'slug'>) => {
+  const addCategory = async (categoryData: Omit<Category, 'id' | 'slug' | 'created_at' | 'updated_at'>) => {
     try {
       const slug = generateSlug(categoryData.name);
       
-      console.log('Tentando adicionar categoria:', categoryData);
-      
       const { data, error } = await supabase
         .from('categories')
-        .insert([
-          {
-            name: categoryData.name,
-            description: categoryData.description,
-            slug: slug,
-            color: categoryData.color || '#0A1D56'
-          }
-        ])
+        .insert([{
+          ...categoryData,
+          slug
+        }])
         .select()
         .single();
 
       if (error) {
-        console.error('Erro ao adicionar categoria:', error);
-        
-        // Se falhar devido a RLS, criar categoria localmente como fallback
-        if (error.code === '42501') {
-          console.log('Erro de RLS - criando categoria localmente como demonstração');
-          const newCategory = {
-            id: Date.now().toString(),
-            name: categoryData.name,
-            description: categoryData.description,
-            slug: slug,
-            color: categoryData.color || '#0A1D56'
-          };
-          setCategories(prev => [...prev, newCategory]);
-          return;
-        }
-        
+        console.error('Erro ao criar categoria:', error);
         throw error;
       }
 
-      console.log('Nova categoria adicionada:', data);
-      await refreshCategories();
+      setCategories(prev => [...prev, data]);
+      toast({
+        title: "Sucesso",
+        description: "Categoria criada com sucesso!",
+      });
     } catch (error) {
-      console.error('Erro ao adicionar categoria:', error);
+      console.error('Erro ao criar categoria:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível criar a categoria.",
+        variant: "destructive",
+      });
       throw error;
     }
   };
 
   const updateCategory = async (id: string, categoryData: Partial<Category>) => {
     try {
-      const updateData: any = { ...categoryData };
+      const updateData = { ...categoryData };
       if (categoryData.name) {
         updateData.slug = generateSlug(categoryData.name);
       }
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('categories')
         .update(updateData)
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) {
         console.error('Erro ao atualizar categoria:', error);
         throw error;
       }
 
-      await refreshCategories();
+      setCategories(prev => prev.map(cat => cat.id === id ? data : cat));
+      toast({
+        title: "Sucesso",
+        description: "Categoria atualizada com sucesso!",
+      });
     } catch (error) {
       console.error('Erro ao atualizar categoria:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar a categoria.",
+        variant: "destructive",
+      });
       throw error;
     }
   };
@@ -168,38 +155,44 @@ export const CategoriesProvider = ({ children }: { children: React.ReactNode }) 
 
       if (error) {
         console.error('Erro ao deletar categoria:', error);
-        
-        // Se falhar devido a RLS, remover localmente como fallback
-        if (error.code === '42501') {
-          console.log('Erro de RLS - removendo categoria localmente como demonstração');
-          setCategories(prev => prev.filter(cat => cat.id !== id));
-          return;
-        }
-        
         throw error;
       }
 
-      await refreshCategories();
+      setCategories(prev => prev.filter(cat => cat.id !== id));
+      toast({
+        title: "Sucesso",
+        description: "Categoria deletada com sucesso!",
+      });
     } catch (error) {
       console.error('Erro ao deletar categoria:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível deletar a categoria.",
+        variant: "destructive",
+      });
       throw error;
     }
   };
 
   const refreshCategories = async () => {
-    console.log('Atualizando categorias...');
     await fetchCategories();
   };
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const value = {
+    categories,
+    isLoading,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    refreshCategories
+  };
+
   return (
-    <CategoriesContext.Provider value={{
-      categories,
-      addCategory,
-      updateCategory,
-      deleteCategory,
-      refreshCategories,
-      isLoading
-    }}>
+    <CategoriesContext.Provider value={value}>
       {children}
     </CategoriesContext.Provider>
   );

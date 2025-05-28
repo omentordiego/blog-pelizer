@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface NewsletterSubscriber {
   id: string;
@@ -13,11 +14,11 @@ interface NewsletterSubscriber {
 
 interface NewsletterContextType {
   subscribers: NewsletterSubscriber[];
-  subscribe: (email: string, name?: string) => Promise<void>;
+  isLoading: boolean;
+  subscribe: (email: string, name?: string) => Promise<boolean>;
   unsubscribe: (email: string) => Promise<void>;
   exportSubscribers: () => Promise<void>;
   refreshSubscribers: () => Promise<void>;
-  isLoading: boolean;
 }
 
 const NewsletterContext = createContext<NewsletterContextType | null>(null);
@@ -33,9 +34,11 @@ export const useNewsletter = () => {
 export const NewsletterProvider = ({ children }: { children: React.ReactNode }) => {
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   const fetchSubscribers = async () => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('newsletter_subscribers')
         .select('*')
@@ -54,34 +57,65 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
     }
   };
 
-  useEffect(() => {
-    fetchSubscribers();
-  }, []);
-
-  const subscribe = async (email: string, name?: string) => {
+  const subscribe = async (email: string, name?: string): Promise<boolean> => {
     try {
+      // Check if email already exists
+      const { data: existing } = await supabase
+        .from('newsletter_subscribers')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (existing) {
+        if (existing.is_active) {
+          toast({
+            title: "Email já cadastrado",
+            description: "Este email já está inscrito na newsletter.",
+            variant: "destructive",
+          });
+          return false;
+        } else {
+          // Reactivate subscription
+          const { error } = await supabase
+            .from('newsletter_subscribers')
+            .update({
+              is_active: true,
+              unsubscribed_at: null,
+              name: name || existing.name
+            })
+            .eq('email', email);
+
+          if (error) {
+            console.error('Erro ao reativar inscrição:', error);
+            return false;
+          }
+
+          await fetchSubscribers();
+          return true;
+        }
+      }
+
+      // Create new subscription
       const { data, error } = await supabase
         .from('newsletter_subscribers')
-        .insert([
-          {
-            email: email,
-            name: name,
-            is_active: true
-          }
-        ])
+        .insert([{
+          email,
+          name,
+          is_active: true
+        }])
         .select()
         .single();
 
       if (error) {
-        console.error('Erro ao inscrever na newsletter:', error);
-        throw error;
+        console.error('Erro ao inscrever:', error);
+        return false;
       }
 
-      console.log('Nova inscrição na newsletter:', data);
-      await refreshSubscribers();
+      setSubscribers(prev => [data, ...prev]);
+      return true;
     } catch (error) {
-      console.error('Erro ao inscrever na newsletter:', error);
-      throw error;
+      console.error('Erro ao inscrever:', error);
+      return false;
     }
   };
 
@@ -89,7 +123,7 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
     try {
       const { error } = await supabase
         .from('newsletter_subscribers')
-        .update({ 
+        .update({
           is_active: false,
           unsubscribed_at: new Date().toISOString()
         })
@@ -100,7 +134,7 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
         throw error;
       }
 
-      await refreshSubscribers();
+      await fetchSubscribers();
     } catch (error) {
       console.error('Erro ao cancelar inscrição:', error);
       throw error;
@@ -109,27 +143,16 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
 
   const exportSubscribers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('newsletter_subscribers')
-        .select('email, name, subscribed_at')
-        .eq('is_active', true);
-
-      if (error) {
-        console.error('Erro ao exportar assinantes:', error);
-        throw error;
-      }
-
-      // Create CSV content
+      const activeSubscribers = subscribers.filter(sub => sub.is_active);
       const csvContent = [
         ['Email', 'Nome', 'Data de Inscrição'],
-        ...data.map(sub => [
+        ...activeSubscribers.map(sub => [
           sub.email,
           sub.name || '',
           new Date(sub.subscribed_at).toLocaleDateString('pt-BR')
         ])
       ].map(row => row.join(',')).join('\n');
 
-      // Download CSV file
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
@@ -146,19 +169,24 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
   };
 
   const refreshSubscribers = async () => {
-    console.log('Atualizando assinantes...');
     await fetchSubscribers();
   };
 
+  useEffect(() => {
+    fetchSubscribers();
+  }, []);
+
+  const value = {
+    subscribers,
+    isLoading,
+    subscribe,
+    unsubscribe,
+    exportSubscribers,
+    refreshSubscribers
+  };
+
   return (
-    <NewsletterContext.Provider value={{
-      subscribers,
-      subscribe,
-      unsubscribe,
-      exportSubscribers,
-      refreshSubscribers,
-      isLoading
-    }}>
+    <NewsletterContext.Provider value={value}>
       {children}
     </NewsletterContext.Provider>
   );

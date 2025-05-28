@@ -62,21 +62,57 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(session);
         
         if (session?.user) {
-          // Fetch admin user data
-          const adminUser = await fetchAdminUser(session.user.id);
-          if (adminUser) {
-            setUser(adminUser);
+          // Check if this is the demo user first
+          if (session.user.email === 'admin@pontovista.com') {
+            setUser({
+              id: session.user.id,
+              email: 'admin@pontovista.com',
+              name: 'Vanderlei Pelizer',
+              role: 'admin'
+            });
           } else {
-            // If no admin user found, check if this is the demo user
-            if (session.user.email === 'admin@pontovista.com') {
+            // Try to fetch admin user data from database
+            const adminUser = await fetchAdminUser(session.user.id);
+            if (adminUser) {
               setUser({
-                id: '1',
-                email: 'admin@pontovista.com',
-                name: 'Vanderlei Pelizer',
-                role: 'admin'
+                id: adminUser.id,
+                email: adminUser.email,
+                name: adminUser.name,
+                role: adminUser.role || 'editor',
+                avatar: adminUser.avatar || undefined
               });
             } else {
-              setUser(null);
+              // Create admin user entry if it doesn't exist
+              try {
+                const { data: newAdminUser, error } = await supabase
+                  .from('admin_users')
+                  .insert([
+                    {
+                      user_id: session.user.id,
+                      email: session.user.email || '',
+                      name: session.user.user_metadata?.full_name || session.user.email || 'Usuário',
+                      role: 'admin'
+                    }
+                  ])
+                  .select()
+                  .single();
+
+                if (error) {
+                  console.error('Erro ao criar usuário admin:', error);
+                  setUser(null);
+                } else {
+                  setUser({
+                    id: newAdminUser.id,
+                    email: newAdminUser.email,
+                    name: newAdminUser.name,
+                    role: newAdminUser.role || 'admin',
+                    avatar: newAdminUser.avatar || undefined
+                  });
+                }
+              } catch (error) {
+                console.error('Erro ao criar usuário admin:', error);
+                setUser(null);
+              }
             }
           }
         } else {
@@ -107,7 +143,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (email === 'admin@pontovista.com' && password === 'admin123') {
         // Create a mock session for demo purposes
         setUser({
-          id: '1',
+          id: 'demo-user-id',
           email: 'admin@pontovista.com',
           name: 'Vanderlei Pelizer',
           role: 'admin'
@@ -119,7 +155,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           expires_at: Date.now() + 3600000,
           refresh_token: 'demo_refresh',
           user: {
-            id: '1',
+            id: 'demo-user-id',
             email: 'admin@pontovista.com',
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
@@ -154,6 +190,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
+      // Handle demo logout
+      if (user?.email === 'admin@pontovista.com' && session?.access_token === 'demo_token') {
+        setUser(null);
+        setSession(null);
+        return;
+      }
+
       await supabase.auth.signOut();
       setUser(null);
       setSession(null);
