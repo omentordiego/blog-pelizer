@@ -1,42 +1,12 @@
 // This file is kept for backward compatibility but most data now comes from Supabase
 // Only keeping helper functions that might still be useful
 
-export interface Article {
-  id: string;
-  title: string;
-  slug: string;
-  summary: string;
-  content: string;
-  cover_image: string;
-  author: string;
-  category_id: string;
-  published_at: string;
-  seo_title: string;
-  seo_description: string;
-  is_published: boolean;
-  views: number;
-  read_time?: number;
-  created_at: string;
-  updated_at: string;
-}
+import { Tables } from '@/integrations/supabase/types';
 
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  color: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface NewsletterSubscriber {
-  id: string;
-  email: string;
-  name?: string;
-  subscribed_at: string;
-  is_active: boolean;
-}
+// Use the actual Supabase types instead of defining our own
+export type Article = Tables<'articles'>;
+export type Category = Tables<'categories'>;
+export type NewsletterSubscriber = Tables<'newsletter_subscribers'>;
 
 // Helper functions for data processing
 export const getArticleBySlug = (articles: Article[], slug: string): Article | undefined => {
