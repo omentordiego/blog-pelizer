@@ -1,87 +1,154 @@
 
-// This file is kept for backward compatibility but most data now comes from Supabase
-// Helper functions updated to work with actual Supabase types
+import { Article, Category } from '@/integrations/supabase/types';
 
-import { Tables } from '@/integrations/supabase/types';
+// Mock articles data
+export const mockArticles: Article[] = [
+  {
+    id: '1',
+    title: 'O Papel da Democracia no Brasil Contemporâneo',
+    slug: 'papel-democracia-brasil-contemporaneo',
+    summary: 'Uma análise profunda sobre os desafios e oportunidades da democracia brasileira no século XXI.',
+    content: `# O Papel da Democracia no Brasil Contemporâneo
 
-// Use the actual Supabase types
-export type Article = Tables<'articles'>;
-export type Category = Tables<'categories'>;
-export type NewsletterSubscriber = Tables<'newsletter_subscribers'>;
+A democracia brasileira, consolidada após décadas de luta e transformação, enfrenta hoje novos desafios que exigem reflexão crítica e participação ativa da sociedade civil.
 
-// Helper functions for data processing - updated to handle optional properties
-export const getArticleBySlug = (articles: Article[], slug: string): Article | undefined => {
-  return articles.find(article => article.slug === slug);
+## Contexto Histórico
+
+O Brasil passou por um longo processo de redemocratização que teve início na década de 1980. Desde então, construímos instituições sólidas que garantem a alternância de poder e a representatividade política.
+
+## Desafios Atuais
+
+Entre os principais desafios que enfrentamos hoje, podemos destacar:
+
+- A polarização política crescente
+- A desinformação e fake news
+- A crise de representatividade
+- Os ataques às instituições democráticas
+
+## Caminhos para o Fortalecimento
+
+Para fortalecer nossa democracia, é fundamental:
+
+1. **Educação Política**: Investir na formação de cidadãos conscientes
+2. **Transparência**: Garantir acesso à informação de qualidade
+3. **Participação**: Incentivar o engajamento cívico
+4. **Diálogo**: Promover o debate respeitoso e construtivo
+
+A democracia não é um sistema perfeito, mas é o melhor que conhecemos para garantir liberdade, igualdade e justiça social.`,
+    author: 'Vanderlei Pelizer',
+    category_id: '1',
+    cover_image: 'https://images.unsplash.com/photo-1494790108755-2616c041946b?w=800',
+    is_published: true,
+    published_at: '2024-01-15T10:00:00Z',
+    created_at: '2024-01-15T10:00:00Z',
+    updated_at: '2024-01-15T10:00:00Z',
+    views: 1250,
+    read_time: 8,
+    seo_title: null,
+    seo_description: null
+  },
+  {
+    id: '2',
+    title: 'Educação Política: Formando Cidadãos Conscientes',
+    slug: 'educacao-politica-formando-cidadaos-conscientes',
+    summary: 'A importância da educação política na formação de uma sociedade mais justa e participativa.',
+    content: `# Educação Política: Formando Cidadãos Conscientes
+
+A educação política é fundamental para o desenvolvimento de uma sociedade democrática sólida e participativa.
+
+## O Que É Educação Política?
+
+Educação política não se trata de partidarismo ou doutrinação. É sobre:
+
+- Compreender como funcionam as instituições
+- Conhecer direitos e deveres cívicos
+- Desenvolver pensamento crítico
+- Entender a importância da participação democrática
+
+## Por Que É Importante?
+
+Uma sociedade com cidadãos politicamente educados:
+
+1. Toma decisões mais informadas
+2. Participa ativamente dos processos democráticos
+3. Cobra transparência dos governantes
+4. Resiste à manipulação e desinformação
+
+## Como Promover?
+
+A educação política deve começar cedo e continuar ao longo da vida:
+
+- **Na escola**: Disciplinas de cidadania e educação cívica
+- **Na família**: Discussões respeitosas sobre temas sociais
+- **Na mídia**: Jornalismo responsável e educativo
+- **Na sociedade**: Debates públicos e fóruns de discussão
+
+Investir em educação política é investir no futuro da democracia.`,
+    author: 'Vanderlei Pelizer',
+    category_id: '2',
+    cover_image: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800',
+    is_published: true,
+    published_at: '2024-01-10T14:30:00Z',
+    created_at: '2024-01-10T14:30:00Z',
+    updated_at: '2024-01-10T14:30:00Z',
+    views: 892,
+    read_time: 6,
+    seo_title: null,
+    seo_description: null
+  }
+];
+
+// Mock categories data
+export const mockCategories: Category[] = [
+  {
+    id: '1',
+    name: 'Análise Política',
+    slug: 'analise-politica',
+    description: 'Análises profundas sobre o cenário político nacional e internacional.',
+    color: '#0A1D56',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '2',
+    name: 'Educação Cívica',
+    slug: 'educacao-civica',
+    description: 'Conteúdos educativos sobre cidadania, direitos e deveres.',
+    color: '#2563EB',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z'
+  }
+];
+
+// Helper functions
+export const getArticleBySlug = (articles: Article[], slug: string): Article | null => {
+  return articles.find(article => article.slug === slug) || null;
+};
+
+export const getCategoryById = (categories: Category[], id: string): Category | null => {
+  return categories.find(category => category.id === id) || null;
+};
+
+export const getCategoryBySlug = (categories: Category[], slug: string): Category | null => {
+  return categories.find(category => category.slug === slug) || null;
 };
 
 export const getArticlesByCategory = (articles: Article[], categoryId: string): Article[] => {
   return articles.filter(article => article.category_id === categoryId);
 };
 
-export const getFeaturedArticles = (articles: Article[]): Article[] => {
-  return articles.filter(article => article.is_published).slice(0, 3);
+export const markdownToHtml = (markdown: string): string => {
+  // Simple markdown to HTML conversion
+  return markdown
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+    .replace(/^\- (.*$)/gim, '<li>$1</li>')
+    .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
+    .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+    .replace(/\*(.*)\*/gim, '<em>$1</em>')
+    .replace(/\n/gim, '<br>');
 };
 
-export const getCategoryBySlug = (categories: Category[], slug: string): Category | undefined => {
-  return categories.find(category => category.slug === slug);
-};
-
-export const getCategoryById = (categories: Category[], id: string): Category | undefined => {
-  return categories.find(category => category.id === id);
-};
-
-export const calculateReadTime = (content: string | null): number => {
-  if (!content) return 1;
-  const wordsPerMinute = 200;
-  const words = content.split(/\s+/).length;
-  return Math.ceil(words / wordsPerMinute);
-};
-
-// Helper function to safely render HTML content
-export const sanitizeHtml = (html: string): string => {
-  // Basic HTML sanitization - in production, consider using a library like DOMPurify
-  return html;
-};
-
-// Helper function to convert Markdown to HTML
-export const markdownToHtml = (markdown: string | null): string => {
-  if (!markdown) return '';
-  
-  // Basic Markdown to HTML conversion
-  let html = markdown
-    // Headers
-    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-    .replace(/^# (.*$)/gm, '<h1>$1</h1>')
-    // Bold and Italic
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
-    // Images
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />')
-    // Lists
-    .replace(/^\* (.+)$/gm, '<li>$1</li>')
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-    // Blockquotes
-    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-    // Line breaks and paragraphs
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/\n/g, '<br>');
-
-  // Wrap in paragraphs if not already wrapped
-  if (!html.startsWith('<')) {
-    html = '<p>' + html + '</p>';
-  }
-
-  // Fix list wrapping
-  html = html.replace(/(<li>.*?<\/li>)/gs, (match) => {
-    if (!match.includes('<ul>') && !match.includes('<ol>')) {
-      return '<ul>' + match + '</ul>';
-    }
-    return match;
-  });
-
-  return html;
-};
+// Type exports for compatibility
+export type { Article, Category };
