@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User, Session } from '@supabase/supabase-js';
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchAdminUser = async (userId: string) => {
+  const fetchAdminUser = useCallback(async (userId: string): Promise<AdminUser | null> => {
     try {
       const { data, error } = await supabase
         .from('admin_users')
@@ -60,15 +60,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email: data.email,
         name: data.name,
         role: data.role || 'editor',
-        avatar: data.avatar
+        avatar: data.avatar || undefined
       };
     } catch (error) {
       console.error('Erro ao buscar dados do admin:', error);
       return null;
     }
-  };
+  }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
 
@@ -83,11 +83,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (error || !data) {
           console.error('Demo admin user not found:', error);
-          toast({
-            title: "Erro no login",
-            description: "Usuário administrador não encontrado.",
-            variant: "destructive",
-          });
           return false;
         }
 
@@ -96,7 +91,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           email: data.email,
           name: data.name,
           role: data.role || 'admin',
-          avatar: data.avatar
+          avatar: data.avatar || undefined
         });
 
         return true;
@@ -110,11 +105,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error('Erro no login:', error);
-        toast({
-          title: "Erro no login",
-          description: error.message,
-          variant: "destructive",
-        });
         return false;
       }
 
@@ -139,37 +129,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return false;
     } catch (error) {
       console.error('Erro no login:', error);
-      toast({
-        title: "Erro no login",
-        description: "Ocorreu um erro inesperado. Tente novamente.",
-        variant: "destructive",
-      });
       return false;
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fetchAdminUser, toast]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await supabase.auth.signOut();
       setUser(null);
       setSession(null);
-      toast({
-        title: "Logout realizado",
-        description: "Você foi desconectado com sucesso.",
-      });
     } catch (error) {
       console.error('Erro no logout:', error);
-      toast({
-        title: "Erro no logout",
-        description: "Ocorreu um erro ao fazer logout.",
-        variant: "destructive",
-      });
     }
-  };
+  }, []);
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     try {
       const { data: { user: authUser, session: currentSession } } = await supabase.auth.getUser();
       
@@ -186,26 +162,52 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);
       setSession(null);
     }
-  };
+  }, [fetchAdminUser]);
 
   useEffect(() => {
+    let mounted = true;
+
     const initializeAuth = async () => {
       try {
+        // Check for existing session first
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        
+        if (mounted && currentSession?.user) {
+          setSession(currentSession);
+          // Defer admin user fetch to avoid blocking UI
+          setTimeout(async () => {
+            if (mounted) {
+              const adminUser = await fetchAdminUser(currentSession.user.id);
+              if (mounted) {
+                setUser(adminUser);
+              }
+            }
+          }, 0);
+        }
+
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, currentSession) => {
-            console.log('Auth state changed:', event, currentSession?.user?.id);
+            if (!mounted) return;
+            
+            console.log('Auth state changed:', event);
             
             setSession(currentSession);
             
             if (event === 'SIGNED_IN' && currentSession?.user) {
               // Defer the admin user fetch to avoid potential deadlocks
               setTimeout(async () => {
-                const adminUser = await fetchAdminUser(currentSession.user.id);
-                setUser(adminUser);
+                if (mounted) {
+                  const adminUser = await fetchAdminUser(currentSession.user.id);
+                  if (mounted) {
+                    setUser(adminUser);
+                  }
+                }
               }, 0);
             } else if (event === 'SIGNED_OUT') {
-              setUser(null);
+              if (mounted) {
+                setUser(null);
+              }
             }
             
             if (event === 'TOKEN_REFRESHED') {
@@ -214,26 +216,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         );
 
-        // Check for existing session
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        
-        if (currentSession?.user) {
-          setSession(currentSession);
-          const adminUser = await fetchAdminUser(currentSession.user.id);
-          setUser(adminUser);
+        if (mounted) {
+          setIsLoading(false);
         }
 
-        setIsLoading(false);
-
-        return () => subscription.unsubscribe();
+        return () => {
+          mounted = false;
+          subscription.unsubscribe();
+        };
       } catch (error) {
         console.error('Erro ao inicializar auth:', error);
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     initializeAuth();
-  }, []);
+
+    return () => {
+      mounted = false;
+    };
+  }, [fetchAdminUser]);
 
   const value = {
     user,

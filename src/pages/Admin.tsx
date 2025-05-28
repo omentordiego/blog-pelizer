@@ -1,17 +1,25 @@
 
-import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import React, { useState, Suspense, lazy } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import Header from '@/components/Header';
 import AdminStats from '@/components/admin/AdminStats';
-import ArticleManagement from '@/components/admin/ArticleManagement';
-import CategoryManagement from '@/components/admin/CategoryManagement';
-import NewsletterManagement from '@/components/admin/NewsletterManagement';
-import AnalyticsSection from '@/components/admin/AnalyticsSection';
 import AddArticleModal from '@/components/admin/AddArticleModal';
 import { useAuth } from '@/contexts/AuthContext';
+
+// Lazy load components para melhor performance
+const ArticleManagement = lazy(() => import('@/components/admin/ArticleManagement'));
+const CategoryManagement = lazy(() => import('@/components/admin/CategoryManagement'));
+const NewsletterManagement = lazy(() => import('@/components/admin/NewsletterManagement'));
+const AnalyticsSection = lazy(() => import('@/components/admin/AnalyticsSection'));
+
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center py-8">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blog-primary"></div>
+  </div>
+);
 
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -78,25 +86,33 @@ const Admin = () => {
 
           {/* Articles Management */}
           <TabsContent value="articles" className="space-y-6">
-            <ArticleManagement 
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-            />
+            <Suspense fallback={<LoadingSpinner />}>
+              <ArticleManagement 
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+              />
+            </Suspense>
           </TabsContent>
 
           {/* Categories Management */}
           <TabsContent value="categories" className="space-y-6">
-            <CategoryManagement />
+            <Suspense fallback={<LoadingSpinner />}>
+              <CategoryManagement />
+            </Suspense>
           </TabsContent>
 
           {/* Newsletter Management */}
           <TabsContent value="newsletter" className="space-y-6">
-            <NewsletterManagement />
+            <Suspense fallback={<LoadingSpinner />}>
+              <NewsletterManagement />
+            </Suspense>
           </TabsContent>
 
           {/* Analytics */}
           <TabsContent value="analytics" className="space-y-6">
-            <AnalyticsSection />
+            <Suspense fallback={<LoadingSpinner />}>
+              <AnalyticsSection />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </div>

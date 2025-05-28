@@ -1,4 +1,5 @@
 
+
 // This file is kept for backward compatibility but most data now comes from Supabase
 // Helper functions updated to work with actual Supabase types
 
@@ -35,3 +36,4 @@ export const calculateReadTime = (content: string): number => {
   const words = content.split(/\s+/).length;
   return Math.ceil(words / wordsPerMinute);
 };
+
