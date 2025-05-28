@@ -30,7 +30,8 @@ export const getCategoryById = (categories: Category[], id: string): Category | 
   return categories.find(category => category.id === id);
 };
 
-export const calculateReadTime = (content: string): number => {
+export const calculateReadTime = (content: string | null): number => {
+  if (!content) return 1;
   const wordsPerMinute = 200;
   const words = content.split(/\s+/).length;
   return Math.ceil(words / wordsPerMinute);
@@ -43,7 +44,7 @@ export const sanitizeHtml = (html: string): string => {
 };
 
 // Helper function to convert Markdown to HTML
-export const markdownToHtml = (markdown: string): string => {
+export const markdownToHtml = (markdown: string | null): string => {
   if (!markdown) return '';
   
   // Basic Markdown to HTML conversion
