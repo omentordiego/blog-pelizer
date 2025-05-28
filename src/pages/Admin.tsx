@@ -22,6 +22,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '@/components/Header';
 import { articles, categories, newsletterSubscribers } from '@/data/mockData';
 
+type ChangeType = 'positive' | 'negative' | 'neutral';
+
+interface StatItem {
+  title: string;
+  value: string;
+  icon: any;
+  change: string;
+  changeType: ChangeType;
+}
+
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -43,40 +53,53 @@ const Admin = () => {
     );
   }
 
-  const stats = [
+  const stats: StatItem[] = [
     {
       title: 'Total de Artigos',
       value: articles.length.toString(),
       icon: FileText,
       change: '+12%',
-      changeType: 'positive' as const
+      changeType: 'positive'
     },
     {
       title: 'Visualizações Totais',
       value: articles.reduce((sum, article) => sum + article.views, 0).toLocaleString(),
       icon: Eye,
       change: '+23%',
-      changeType: 'positive' as const
+      changeType: 'positive'
     },
     {
       title: 'Inscritos Newsletter',
       value: newsletterSubscribers.length.toString(),
       icon: Mail,
       change: '+8%',
-      changeType: 'positive' as const
+      changeType: 'positive'
     },
     {
       title: 'Categorias Ativas',
       value: categories.length.toString(),
       icon: BarChart3,
       change: '0%',
-      changeType: 'neutral' as const
+      changeType: 'neutral'
     }
   ];
 
   const filteredArticles = articles.filter(article =>
     article.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const getChangeColor = (changeType: ChangeType) => {
+    switch (changeType) {
+      case 'positive':
+        return 'text-green-600';
+      case 'negative':
+        return 'text-red-600';
+      case 'neutral':
+        return 'text-gray-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -114,10 +137,7 @@ const Admin = () => {
                   </div>
                 </div>
                 <div className="mt-4 flex items-center">
-                  <span className={`text-sm font-medium ${
-                    stat.changeType === 'positive' ? 'text-green-600' : 
-                    stat.changeType === 'negative' ? 'text-red-600' : 'text-gray-600'
-                  }`}>
+                  <span className={`text-sm font-medium ${getChangeColor(stat.changeType)}`}>
                     {stat.change}
                   </span>
                   <span className="text-sm text-gray-600 ml-1">vs. mês anterior</span>
