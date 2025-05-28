@@ -77,8 +77,8 @@ export default {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			fontFamily: {
-				'serif': ['DM Serif Display', 'serif'],
-				'sans': ['Inter', 'sans-serif'],
+				'sans': ['Montserrat', 'sans-serif'],
+				'serif': ['Montserrat', 'sans-serif'],
 				'heading': ['Montserrat', 'sans-serif']
 			},
 			keyframes: {

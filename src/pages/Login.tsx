@@ -6,21 +6,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    // Simular autenticação (em produção, seria uma chamada à API)
-    if (email === 'admin@pontovista.com' && password === 'admin123') {
+    
+    const success = await login(email, password);
+    
+    if (success) {
       toast({
         title: "Login realizado com sucesso!",
         description: "Redirecionando para o painel administrativo...",
@@ -36,8 +37,6 @@ const Login = () => {
         variant: "destructive",
       });
     }
-    
-    setIsLoading(false);
   };
 
   return (
@@ -45,20 +44,20 @@ const Login = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
           <div className="w-16 h-16 bg-blog-primary rounded-full flex items-center justify-center mx-auto">
-            <span className="text-white font-bold text-xl">PV</span>
+            <span className="text-white font-bold text-xl font-heading">PV</span>
           </div>
           <div>
-            <CardTitle className="text-2xl font-serif text-blog-primary">
+            <CardTitle className="text-2xl font-heading text-blog-primary">
               Ponto de Vista
             </CardTitle>
-            <p className="text-gray-600">Painel Administrativo</p>
+            <p className="text-gray-600 font-heading">Painel Administrativo</p>
           </div>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="text-sm font-medium text-gray-700 font-heading">
                 Email
               </label>
               <div className="relative">
@@ -76,7 +75,7 @@ const Login = () => {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="text-sm font-medium text-gray-700 font-heading">
                 Senha
               </label>
               <div className="relative">
@@ -102,7 +101,7 @@ const Login = () => {
 
             <Button
               type="submit"
-              className="w-full bg-blog-primary hover:bg-blog-secondary"
+              className="w-full bg-blog-primary hover:bg-blog-secondary font-heading"
               disabled={isLoading}
             >
               {isLoading ? 'Entrando...' : 'Entrar'}
@@ -110,14 +109,14 @@ const Login = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <Link to="/" className="text-sm text-blog-secondary hover:text-blog-primary">
+            <Link to="/" className="text-sm text-blog-secondary hover:text-blog-primary font-heading">
               ← Voltar ao site
             </Link>
           </div>
 
           {/* Credenciais de demonstração */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Credenciais para demonstração:</h4>
+            <h4 className="text-sm font-medium text-gray-700 mb-2 font-heading">Credenciais para demonstração:</h4>
             <div className="text-xs text-gray-600 space-y-1">
               <div><strong>Email:</strong> admin@pontovista.com</div>
               <div><strong>Senha:</strong> admin123</div>

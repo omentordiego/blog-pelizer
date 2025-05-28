@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display:wght@400&family=Montserrat:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -100,11 +100,11 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Montserrat', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'DM Serif Display', serif;
+    font-family: 'Montserrat', sans-serif;
   }
 }
 
@@ -114,23 +114,28 @@
   }
   
   .prose h1 {
-    @apply text-3xl font-serif font-bold text-gray-900 mb-6;
+    @apply text-3xl font-bold text-gray-900 mb-6;
+    font-family: 'Montserrat', sans-serif;
   }
   
   .prose h2 {
-    @apply text-2xl font-serif font-bold text-gray-900 mb-4 mt-8;
+    @apply text-2xl font-bold text-gray-900 mb-4 mt-8;
+    font-family: 'Montserrat', sans-serif;
   }
   
   .prose h3 {
-    @apply text-xl font-serif font-bold text-gray-900 mb-3 mt-6;
+    @apply text-xl font-bold text-gray-900 mb-3 mt-6;
+    font-family: 'Montserrat', sans-serif;
   }
   
   .prose p {
     @apply text-gray-700 leading-relaxed mb-4;
+    font-family: 'Montserrat', sans-serif;
   }
   
   .prose blockquote {
     @apply border-l-4 border-blue-300 bg-blue-50 p-4 italic text-gray-700 my-6;
+    font-family: 'Montserrat', sans-serif;
   }
   
   .prose ul, .prose ol {
@@ -139,6 +144,7 @@
   
   .prose li {
     @apply mb-2 text-gray-700;
+    font-family: 'Montserrat', sans-serif;
   }
   
   .prose a {

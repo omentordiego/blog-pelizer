@@ -27,25 +27,32 @@ const Index = () => {
       <section className="bg-gradient-to-br from-blog-primary to-blog-secondary text-white py-16 lg:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl lg:text-6xl font-serif font-bold mb-6 animate-fade-in">
+            <h1 className="text-4xl lg:text-6xl font-heading font-bold mb-6 animate-fade-in">
               Ponto de Vista
             </h1>
-            <p className="text-xl lg:text-2xl text-blue-100 mb-4">
+            <p className="text-xl lg:text-2xl text-blue-100 mb-4 font-heading">
               Por Vanderlei Pelizer
             </p>
-            <p className="text-lg lg:text-xl text-blue-200 mb-8 max-w-3xl mx-auto">
+            <p className="text-lg lg:text-xl text-blue-200 mb-8 max-w-3xl mx-auto font-heading">
               Educação política com opinião, clareza e posicionamento. 
               Análises profundas sobre o cenário político brasileiro que formam cidadãos conscientes.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/blog">
-                <Button size="lg" variant="secondary" className="bg-white text-blog-primary hover:bg-gray-100">
+                <Button 
+                  size="lg" 
+                  className="bg-white text-blog-primary hover:bg-gray-100 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl font-heading text-lg px-8 py-6"
+                >
                   Explorar Artigos
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
               <Link to="/sobre">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blog-primary">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-2 border-white text-white hover:bg-white hover:text-blog-primary hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl font-heading text-lg px-8 py-6"
+                >
                   Sobre o Autor
                 </Button>
               </Link>
@@ -63,10 +70,10 @@ const Index = () => {
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-blog-accent rounded-lg mb-3">
                   <stat.icon className="w-6 h-6 text-blog-primary" />
                 </div>
-                <div className="text-2xl font-bold text-blog-primary mb-1">
+                <div className="text-2xl font-bold text-blog-primary mb-1 font-heading">
                   {stat.value}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 font-heading">
                   {stat.label}
                 </div>
               </div>
@@ -79,18 +86,28 @@ const Index = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-serif font-bold text-blog-primary mb-4">
+            <h2 className="text-3xl lg:text-4xl font-heading font-bold text-blog-primary mb-4">
               Artigos em Destaque
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto font-heading">
               Análises profundas e reflexões importantes sobre o cenário político atual
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            {featuredArticles.map((article) => (
-              <ArticleCard key={article.id} article={article} featured />
-            ))}
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-center">
+              {featuredArticles.slice(0, 2).map((article) => (
+                <ArticleCard key={article.id} article={article} featured />
+              ))}
+            </div>
+            
+            {featuredArticles.length > 2 && (
+              <div className="mt-8 flex justify-center">
+                <div className="w-full lg:w-1/2">
+                  <ArticleCard article={featuredArticles[2]} featured />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -100,15 +117,15 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-12">
             <div>
-              <h2 className="text-3xl font-serif font-bold text-blog-primary mb-2">
+              <h2 className="text-3xl font-heading font-bold text-blog-primary mb-2">
                 Artigos Recentes
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 font-heading">
                 Acompanhe as últimas análises e reflexões
               </p>
             </div>
             <Link to="/blog">
-              <Button variant="outline">
+              <Button variant="outline" className="font-heading">
                 Ver Todos
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
@@ -127,10 +144,10 @@ const Index = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-serif font-bold text-blog-primary mb-4">
+            <h2 className="text-3xl font-heading font-bold text-blog-primary mb-4">
               Categorias
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 font-heading">
               Explore nossos temas principais
             </p>
           </div>
@@ -142,13 +159,13 @@ const Index = () => {
                 to={`/categorias/${category.slug}`}
                 className="group p-6 bg-white rounded-lg border border-gray-200 hover:border-blog-accent hover:shadow-md transition-all duration-300"
               >
-                <h3 className="text-xl font-semibold text-blog-primary group-hover:text-blog-secondary mb-2 transition-colors">
+                <h3 className="text-xl font-semibold text-blog-primary group-hover:text-blog-secondary mb-2 transition-colors font-heading">
                   {category.name}
                 </h3>
-                <p className="text-gray-600 text-sm mb-4">
+                <p className="text-gray-600 text-sm mb-4 font-heading">
                   {category.description}
                 </p>
-                <span className="text-blog-secondary text-sm font-medium">
+                <span className="text-blog-secondary text-sm font-medium font-heading">
                   Explorar categoria →
                 </span>
               </Link>
@@ -160,14 +177,17 @@ const Index = () => {
       {/* Call to Action */}
       <section className="py-16 bg-blog-primary text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl lg:text-4xl font-serif font-bold mb-4">
+          <h2 className="text-3xl lg:text-4xl font-heading font-bold mb-4">
             Junte-se à Comunidade
           </h2>
-          <p className="text-lg text-blue-200 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-blue-200 mb-8 max-w-2xl mx-auto font-heading">
             Receba análises exclusivas e participe de um debate político qualificado e construtivo
           </p>
           <Link to="/newsletter">
-            <Button size="lg" variant="secondary" className="bg-white text-blog-primary hover:bg-gray-100">
+            <Button 
+              size="lg" 
+              className="bg-white text-blog-primary hover:bg-gray-100 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl font-heading text-lg px-8 py-6"
+            >
               Inscrever-se na Newsletter
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>

@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { LogOut } from 'lucide-react';
 import Header from '@/components/Header';
 import AdminStats from '@/components/admin/AdminStats';
 import ArticleManagement from '@/components/admin/ArticleManagement';
@@ -9,29 +11,30 @@ import CategoryManagement from '@/components/admin/CategoryManagement';
 import NewsletterManagement from '@/components/admin/NewsletterManagement';
 import AnalyticsSection from '@/components/admin/AnalyticsSection';
 import AddArticleModal from '@/components/admin/AddArticleModal';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const { user, logout, isLoading } = useAuth();
 
-  // Simular autenticação (em produção, seria verificado no backend)
-  const isAuthenticated = true; // Para demonstração
-
-  if (!isAuthenticated) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-white">
-        <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4 font-heading">Acesso Restrito</h1>
-          <p className="text-gray-600 mb-4">Você precisa fazer login para acessar o painel administrativo.</p>
-          <Link to="/login">
-            <button className="bg-blog-primary hover:bg-blog-secondary transition-all duration-200 hover:scale-105 text-white px-4 py-2 rounded">
-              Fazer Login
-            </button>
-          </Link>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blog-primary mx-auto mb-4"></div>
+          <p className="text-gray-600 font-heading">Carregando...</p>
         </div>
       </div>
     );
   }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -43,9 +46,19 @@ const Admin = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 font-heading">Painel Administrativo</h1>
-              <p className="text-gray-600">Gerencie conteúdo e acompanhe métricas do blog</p>
+              <p className="text-gray-600 font-heading">Bem-vindo, {user.name}</p>
             </div>
-            <AddArticleModal />
+            <div className="flex items-center gap-3">
+              <AddArticleModal />
+              <Button 
+                onClick={handleLogout}
+                variant="outline"
+                className="font-heading"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sair
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -57,10 +70,10 @@ const Admin = () => {
         {/* Main Content */}
         <Tabs defaultValue="articles" className="space-y-6">
           <TabsList className="grid w-full lg:w-auto grid-cols-4">
-            <TabsTrigger value="articles">Artigos</TabsTrigger>
-            <TabsTrigger value="categories">Categorias</TabsTrigger>
-            <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="articles" className="font-heading">Artigos</TabsTrigger>
+            <TabsTrigger value="categories" className="font-heading">Categorias</TabsTrigger>
+            <TabsTrigger value="newsletter" className="font-heading">Newsletter</TabsTrigger>
+            <TabsTrigger value="analytics" className="font-heading">Analytics</TabsTrigger>
           </TabsList>
 
           {/* Articles Management */}
