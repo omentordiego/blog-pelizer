@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
@@ -30,10 +29,27 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { name: 'Facebook', icon: Facebook, href: '#' },
-    { name: 'Twitter', icon: Twitter, href: '#' },
-    { name: 'Instagram', icon: Instagram, href: '#' },
-    { name: 'LinkedIn', icon: Linkedin, href: '#' },
+    { 
+      name: 'Facebook', 
+      icon: Facebook, 
+      href: 'https://www.facebook.com/profile.php?id=61572958285693' 
+    },
+    { 
+      name: 'Twitter/X', 
+      icon: null, 
+      href: '#',
+      customIcon: 'https://img.icons8.com/?size=100&id=fJp7hepMryiw&format=png&color=000000'
+    },
+    { 
+      name: 'Instagram', 
+      icon: Instagram, 
+      href: 'https://www.instagram.com/vanderleipelizer/' 
+    },
+    { 
+      name: 'LinkedIn', 
+      icon: Linkedin, 
+      href: '#' 
+    },
   ];
 
   const footerLinks = [
@@ -113,8 +129,18 @@ const Footer = () => {
                   href={social.href}
                   className="text-blue-200 hover:text-white transition-colors"
                   aria-label={social.name}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  <social.icon className="w-5 h-5" />
+                  {social.customIcon ? (
+                    <img 
+                      src={social.customIcon} 
+                      alt={social.name}
+                      className="w-5 h-5 brightness-0 invert opacity-75 hover:opacity-100 transition-opacity"
+                    />
+                  ) : social.icon ? (
+                    <social.icon className="w-5 h-5" />
+                  ) : null}
                 </a>
               ))}
             </div>
