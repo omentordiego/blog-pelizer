@@ -14,8 +14,8 @@ interface ArticleCardProps {
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, featured = false }) => {
   const { categories } = useCategories();
-  const category = getCategoryById(categories, article.category_id);
-  const formattedDate = new Date(article.published_at).toLocaleDateString('pt-BR', {
+  const category = article.category_id ? getCategoryById(categories, article.category_id) : null;
+  const formattedDate = new Date(article.published_at || article.created_at).toLocaleDateString('pt-BR', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -27,7 +27,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, featured = false }) 
     }`}>
       <div className="relative overflow-hidden">
         <img
-          src={article.cover_image}
+          src={article.cover_image || '/placeholder.svg'}
           alt={article.title}
           className={`w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
             featured ? 'h-64 lg:h-80' : 'h-48'
@@ -61,7 +61,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, featured = false }) 
         <p className={`text-gray-600 line-clamp-3 ${
           featured ? 'text-base mb-4' : 'text-sm mb-3'
         }`}>
-          {article.summary}
+          {article.summary || 'Resumo não disponível'}
         </p>
 
         <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -75,7 +75,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, featured = false }) 
           </div>
           <div className="flex items-center gap-1">
             <Eye className="w-4 h-4" />
-            <span>{article.views}</span>
+            <span>{article.views || 0}</span>
           </div>
         </div>
       </CardContent>
