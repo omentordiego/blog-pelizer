@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, Edit, Eye, Trash2, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Edit, Eye, Trash2, Calendar } from 'lucide-react';
 import { articles, categories } from '@/data/mockData';
+import AddArticleModal from './AddArticleModal';
 
 interface ArticleManagementProps {
   searchTerm: string;
@@ -21,7 +22,7 @@ const ArticleManagement = ({ searchTerm, onSearchChange }: ArticleManagementProp
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Gerenciar Artigos</CardTitle>
+          <CardTitle className="font-heading">Gerenciar Artigos</CardTitle>
           <div className="flex gap-2">
             <Input
               placeholder="Buscar artigos..."
@@ -29,10 +30,7 @@ const ArticleManagement = ({ searchTerm, onSearchChange }: ArticleManagementProp
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-64"
             />
-            <Button className="bg-blog-primary hover:bg-blog-secondary">
-              <Plus className="w-4 h-4 mr-2" />
-              Novo
-            </Button>
+            <AddArticleModal />
           </div>
         </div>
       </CardHeader>
@@ -44,7 +42,7 @@ const ArticleManagement = ({ searchTerm, onSearchChange }: ArticleManagementProp
               <div key={article.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-semibold text-gray-900">{article.title}</h3>
+                    <h3 className="font-semibold text-gray-900 font-heading">{article.title}</h3>
                     {article.featured && (
                       <Badge className="bg-blog-accent text-blog-primary">Destaque</Badge>
                     )}
@@ -66,13 +64,25 @@ const ArticleManagement = ({ searchTerm, onSearchChange }: ArticleManagementProp
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="hover:bg-blue-50 hover:text-blog-primary transition-all duration-200 hover:scale-110"
+                  >
                     <Eye className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="hover:bg-green-50 hover:text-green-600 transition-all duration-200 hover:scale-110"
+                  >
                     <Edit className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="hover:bg-red-50 hover:text-red-600 transition-all duration-200 hover:scale-110"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
