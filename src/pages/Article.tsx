@@ -8,14 +8,18 @@ import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
-import { getArticleBySlug, getCategoryById, articles } from '@/data/mockData';
+import { getArticleBySlug, getCategoryById } from '@/data/mockData';
+import { useArticles } from '@/contexts/ArticlesContext';
+import { useCategories } from '@/contexts/CategoriesContext';
 
 const Article = () => {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
   const [showComments, setShowComments] = useState(false);
+  const { articles } = useArticles();
+  const { categories } = useCategories();
   
-  const article = slug ? getArticleBySlug(slug) : null;
+  const article = slug ? getArticleBySlug(articles, slug) : null;
   
   if (!article) {
     return (
@@ -32,15 +36,15 @@ const Article = () => {
     );
   }
 
-  const category = getCategoryById(article.categoryId);
-  const formattedDate = new Date(article.publishDate).toLocaleDateString('pt-BR', {
+  const category = getCategoryById(categories, article.category_id);
+  const formattedDate = new Date(article.published_at).toLocaleDateString('pt-BR', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
 
   const relatedArticles = articles
-    .filter(a => a.id !== article.id && a.categoryId === article.categoryId)
+    .filter(a => a.id !== article.id && a.category_id === article.category_id)
     .slice(0, 3);
 
   const handleShare = (platform: string) => {
@@ -183,7 +187,7 @@ const Article = () => {
             {/* Featured Image */}
             <div className="mb-8">
               <img
-                src={article.coverImage}
+                src={article.cover_image}
                 alt={article.title}
                 className="w-full h-64 lg:h-96 object-cover rounded-lg"
               />

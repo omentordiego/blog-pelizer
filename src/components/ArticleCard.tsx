@@ -5,6 +5,7 @@ import { Calendar, Eye, User } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Article, getCategoryById } from '@/data/mockData';
+import { useCategories } from '@/contexts/CategoriesContext';
 
 interface ArticleCardProps {
   article: Article;
@@ -12,8 +13,9 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, featured = false }) => {
-  const category = getCategoryById(article.categoryId);
-  const formattedDate = new Date(article.publishDate).toLocaleDateString('pt-BR', {
+  const { categories } = useCategories();
+  const category = getCategoryById(categories, article.category_id);
+  const formattedDate = new Date(article.published_at).toLocaleDateString('pt-BR', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -25,7 +27,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, featured = false }) 
     }`}>
       <div className="relative overflow-hidden">
         <img
-          src={article.coverImage}
+          src={article.cover_image}
           alt={article.title}
           className={`w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
             featured ? 'h-64 lg:h-80' : 'h-48'

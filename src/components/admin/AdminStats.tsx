@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { articles, categories, newsletterSubscribers } from '@/data/mockData';
 import { BarChart3, FileText, Eye, Mail } from 'lucide-react';
+import { useArticles } from '@/contexts/ArticlesContext';
+import { useCategories } from '@/contexts/CategoriesContext';
+import { useNewsletter } from '@/contexts/NewsletterContext';
 
 type ChangeType = 'positive' | 'negative' | 'neutral';
 
@@ -15,6 +17,10 @@ interface StatItem {
 }
 
 const AdminStats = () => {
+  const { articles } = useArticles();
+  const { categories } = useCategories();
+  const { subscribers } = useNewsletter();
+
   const stats: StatItem[] = [
     {
       title: 'Total de Artigos',
@@ -32,7 +38,7 @@ const AdminStats = () => {
     },
     {
       title: 'Inscritos Newsletter',
-      value: newsletterSubscribers.length.toString(),
+      value: subscribers.length.toString(),
       icon: Mail,
       change: '+8%',
       changeType: 'positive'

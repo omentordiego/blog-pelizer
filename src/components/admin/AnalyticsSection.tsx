@@ -1,9 +1,13 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { articles, categories } from '@/data/mockData';
+import { useArticles } from '@/contexts/ArticlesContext';
+import { useCategories } from '@/contexts/CategoriesContext';
 
 const AnalyticsSection = () => {
+  const { articles } = useArticles();
+  const { categories } = useCategories();
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
@@ -37,7 +41,7 @@ const AnalyticsSection = () => {
         <CardContent>
           <div className="space-y-4">
             {categories.map((category) => {
-              const categoryArticles = articles.filter(a => a.categoryId === category.id);
+              const categoryArticles = articles.filter(a => a.category_id === category.id);
               const totalViews = categoryArticles.reduce((sum, article) => sum + article.views, 0);
               return (
                 <div key={category.id} className="flex items-center justify-between">

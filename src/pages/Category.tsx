@@ -8,13 +8,18 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
 import { getCategoryBySlug, getArticlesByCategory } from '@/data/mockData';
+import { useArticles } from '@/contexts/ArticlesContext';
+import { useCategories } from '@/contexts/CategoriesContext';
 
 const Category = () => {
   const { slug } = useParams<{ slug: string }>();
   const [sortBy, setSortBy] = useState<string>('date');
   
-  const category = slug ? getCategoryBySlug(slug) : null;
-  const categoryArticles = category ? getArticlesByCategory(category.id) : [];
+  const { articles } = useArticles();
+  const { categories } = useCategories();
+  
+  const category = slug ? getCategoryBySlug(categories, slug) : null;
+  const categoryArticles = category ? getArticlesByCategory(articles, category.id) : [];
 
   if (!category) {
     return (
@@ -35,7 +40,7 @@ const Category = () => {
   const sortedArticles = [...categoryArticles].sort((a, b) => {
     switch (sortBy) {
       case 'date':
-        return new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime();
+        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
       case 'views':
         return b.views - a.views;
       case 'title':

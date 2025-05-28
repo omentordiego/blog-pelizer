@@ -6,9 +6,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { categories, getArticlesByCategory } from '@/data/mockData';
+import { getArticlesByCategory } from '@/data/mockData';
+import { useArticles } from '@/contexts/ArticlesContext';
+import { useCategories } from '@/contexts/CategoriesContext';
 
 const Categories = () => {
+  const { articles } = useArticles();
+  const { categories } = useCategories();
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -32,7 +37,7 @@ const Categories = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((category) => {
-              const categoryArticles = getArticlesByCategory(category.id);
+              const categoryArticles = getArticlesByCategory(articles, category.id);
               const totalViews = categoryArticles.reduce((sum, article) => sum + article.views, 0);
 
               return (

@@ -7,24 +7,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
-import { articles, categories, Category } from '@/data/mockData';
+import { useArticles } from '@/contexts/ArticlesContext';
+import { useCategories } from '@/contexts/CategoriesContext';
 
 const Blog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('date');
+  
+  const { articles } = useArticles();
+  const { categories } = useCategories();
 
   // Filter and sort articles
   const filteredArticles = articles.filter((article) => {
     const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          article.summary.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || article.categoryId === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || article.category_id === selectedCategory;
     
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
     switch (sortBy) {
       case 'date':
-        return new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime();
+        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
       case 'views':
         return b.views - a.views;
       case 'title':
