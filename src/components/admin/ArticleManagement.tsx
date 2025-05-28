@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Edit, Eye, Trash2, Calendar } from 'lucide-react';
+import { Trash2, Calendar } from 'lucide-react';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
 import AddArticleModal from './AddArticleModal';
+import EditArticleModal from './EditArticleModal';
+import ViewArticleModal from './ViewArticleModal';
 
 interface ArticleManagementProps {
   searchTerm: string;
@@ -87,27 +89,12 @@ const ArticleManagement = ({ searchTerm, onSearchChange }: ArticleManagementProp
                       <Calendar className="w-3 h-3 inline mr-1" />
                       {new Date(article.created_at).toLocaleDateString('pt-BR')}
                     </span>
-                    <span>
-                      <Eye className="w-3 h-3 inline mr-1" />
-                      {article.views} visualizações
-                    </span>
+                    <span>{article.views} visualizações</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="hover:bg-blue-50 hover:text-blog-primary transition-all duration-200 hover:scale-110"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="hover:bg-green-50 hover:text-green-600 transition-all duration-200 hover:scale-110"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
+                  <ViewArticleModal article={article} />
+                  <EditArticleModal article={article} />
                   <Button 
                     variant="ghost" 
                     size="sm"
