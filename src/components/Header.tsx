@@ -30,7 +30,7 @@ const Header = () => {
             <img 
               src="https://i.postimg.cc/LX2bQXqH/PONTO-DE-VISTA.png" 
               alt="Ponto de Vista" 
-              className="h-10 w-auto"
+              className="h-12 w-auto"
             />
           </Link>
 

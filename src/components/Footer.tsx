@@ -99,7 +99,7 @@ const Footer = () => {
               <img 
                 src="https://i.postimg.cc/LX2bQXqH/PONTO-DE-VISTA.png" 
                 alt="Ponto de Vista" 
-                className="h-12 w-auto brightness-0 invert"
+                className="h-14 w-auto brightness-0 invert"
               />
             </Link>
             <p className="text-blue-100 text-sm mb-4">
