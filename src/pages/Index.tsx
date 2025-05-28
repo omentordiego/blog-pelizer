@@ -6,14 +6,18 @@ import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
-import { articles, getFeaturedArticles, categories } from '@/data/mockData';
+import { useArticles } from '@/contexts/ArticlesContext';
+import { useCategories } from '@/contexts/CategoriesContext';
 
 const Index = () => {
-  const featuredArticles = getFeaturedArticles();
-  const recentArticles = articles.slice(0, 6);
+  const { articles } = useArticles();
+  const { categories } = useCategories();
+  
+  const featuredArticles = articles.filter(article => article.is_published).slice(0, 3);
+  const recentArticles = articles.filter(article => article.is_published).slice(0, 6);
 
   const stats = [
-    { icon: BookOpen, label: 'Artigos Publicados', value: '120+' },
+    { icon: BookOpen, label: 'Artigos Publicados', value: `${articles.filter(a => a.is_published).length}+` },
     { icon: Users, label: 'Leitores Mensais', value: '15K+' },
     { icon: Target, label: 'Anos de Experiência', value: '25+' },
     { icon: TrendingUp, label: 'Inscritos Newsletter', value: '3K+' },
@@ -37,7 +41,7 @@ const Index = () => {
               Educação política com opinião, clareza e posicionamento. 
               Análises profundas sobre o cenário político brasileiro que formam cidadãos conscientes.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Link to="/blog">
                 <Button 
                   size="lg" 
@@ -45,15 +49,6 @@ const Index = () => {
                 >
                   Explorar Artigos
                   <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Link to="/sobre">
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="border-2 border-white text-white hover:bg-white hover:text-blog-primary hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl font-heading text-lg px-8 py-6"
-                >
-                  Sobre o Autor
                 </Button>
               </Link>
             </div>
@@ -83,96 +78,102 @@ const Index = () => {
       </section>
 
       {/* Featured Articles */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-heading font-bold text-blog-primary mb-4">
-              Artigos em Destaque
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto font-heading">
-              Análises profundas e reflexões importantes sobre o cenário político atual
-            </p>
-          </div>
-
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-center">
-              {featuredArticles.slice(0, 2).map((article) => (
-                <ArticleCard key={article.id} article={article} featured />
-              ))}
-            </div>
-            
-            {featuredArticles.length > 2 && (
-              <div className="mt-8 flex justify-center">
-                <div className="w-full lg:w-1/2">
-                  <ArticleCard article={featuredArticles[2]} featured />
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Recent Articles */}
-      <section className="py-16 bg-muted">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h2 className="text-3xl font-heading font-bold text-blog-primary mb-2">
-                Artigos Recentes
+      {featuredArticles.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl lg:text-4xl font-heading font-bold text-blog-primary mb-4">
+                Artigos em Destaque
               </h2>
-              <p className="text-gray-600 font-heading">
-                Acompanhe as últimas análises e reflexões
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto font-heading">
+                Análises profundas e reflexões importantes sobre o cenário político atual
               </p>
             </div>
-            <Link to="/blog">
-              <Button variant="outline" className="font-heading">
-                Ver Todos
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recentArticles.map((article) => (
-              <ArticleCard key={article.id} article={article} />
-            ))}
+            <div className="max-w-6xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-center">
+                {featuredArticles.slice(0, 2).map((article) => (
+                  <ArticleCard key={article.id} article={article} featured />
+                ))}
+              </div>
+              
+              {featuredArticles.length > 2 && (
+                <div className="mt-8 flex justify-center">
+                  <div className="w-full lg:w-1/2">
+                    <ArticleCard article={featuredArticles[2]} featured />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* Recent Articles */}
+      {recentArticles.length > 0 && (
+        <section className="py-16 bg-muted">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-12">
+              <div>
+                <h2 className="text-3xl font-heading font-bold text-blog-primary mb-2">
+                  Artigos Recentes
+                </h2>
+                <p className="text-gray-600 font-heading">
+                  Acompanhe as últimas análises e reflexões
+                </p>
+              </div>
+              <Link to="/blog">
+                <Button variant="outline" className="font-heading">
+                  Ver Todos
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recentArticles.map((article) => (
+                <ArticleCard key={article.id} article={article} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Categories Preview */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-heading font-bold text-blog-primary mb-4">
-              Categorias
-            </h2>
-            <p className="text-lg text-gray-600 font-heading">
-              Explore nossos temas principais
-            </p>
-          </div>
+      {categories.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-heading font-bold text-blog-primary mb-4">
+                Categorias
+              </h2>
+              <p className="text-lg text-gray-600 font-heading">
+                Explore nossos temas principais
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.slice(0, 6).map((category) => (
-              <Link
-                key={category.id}
-                to={`/categorias/${category.slug}`}
-                className="group p-6 bg-white rounded-lg border border-gray-200 hover:border-blog-accent hover:shadow-md transition-all duration-300"
-              >
-                <h3 className="text-xl font-semibold text-blog-primary group-hover:text-blog-secondary mb-2 transition-colors font-heading">
-                  {category.name}
-                </h3>
-                <p className="text-gray-600 text-sm mb-4 font-heading">
-                  {category.description}
-                </p>
-                <span className="text-blog-secondary text-sm font-medium font-heading">
-                  Explorar categoria →
-                </span>
-              </Link>
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {categories.slice(0, 6).map((category) => (
+                <Link
+                  key={category.id}
+                  to={`/categorias/${category.slug}`}
+                  className="group p-6 bg-white rounded-lg border border-gray-200 hover:border-blog-accent hover:shadow-md transition-all duration-300"
+                >
+                  <h3 className="text-xl font-semibold text-blog-primary group-hover:text-blog-secondary mb-2 transition-colors font-heading">
+                    {category.name}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4 font-heading">
+                    {category.description}
+                  </p>
+                  <span className="text-blog-secondary text-sm font-medium font-heading">
+                    Explorar categoria →
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Call to Action */}
       <section className="py-16 bg-blog-primary text-white">

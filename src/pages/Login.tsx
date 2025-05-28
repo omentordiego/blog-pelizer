@@ -12,8 +12,6 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [name, setName] = useState('');
   const { login, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -21,65 +19,32 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (isSignUp) {
-      // Handle sign up
-      try {
-        const { supabase } = await import('@/integrations/supabase/client');
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: name,
-            }
-          }
-        });
-
-        if (error) {
-          toast({
-            title: "Erro no cadastro",
-            description: error.message,
-            variant: "destructive",
-          });
-          return;
-        }
-
-        toast({
-          title: "Cadastro realizado com sucesso!",
-          description: "Verifique seu email para confirmar a conta.",
-        });
-
-        // Switch to login mode after successful signup
-        setIsSignUp(false);
-        setName('');
-      } catch (error) {
-        console.error('Erro no cadastro:', error);
-        toast({
-          title: "Erro no cadastro",
-          description: "Ocorreu um erro inesperado. Tente novamente.",
-          variant: "destructive",
-        });
-      }
-    } else {
-      // Handle login
-      const success = await login(email, password);
+    if (!email.trim() || !password.trim()) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha email e senha.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const success = await login(email, password);
+    
+    if (success) {
+      toast({
+        title: "Login realizado com sucesso!",
+        description: "Redirecionando para o painel administrativo...",
+      });
       
-      if (success) {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Redirecionando para o painel administrativo...",
-        });
-        
-        setTimeout(() => {
-          navigate('/admin');
-        }, 1000);
-      } else {
-        toast({
-          title: "Erro no login",
-          description: "Email ou senha incorretos",
-          variant: "destructive",
-        });
-      }
+      setTimeout(() => {
+        navigate('/admin');
+      }, 1000);
+    } else {
+      toast({
+        title: "Erro no login",
+        description: "Email ou senha incorretos. Verifique suas credenciais e tente novamente.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -95,29 +60,13 @@ const Login = () => {
               Ponto de Vista
             </CardTitle>
             <p className="text-gray-600 font-heading">
-              {isSignUp ? 'Criar Conta Administrativa' : 'Painel Administrativo'}
+              Painel Administrativo
             </p>
           </div>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-gray-700 font-heading">
-                  Nome Completo
-                </label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Seu nome completo"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-            )}
-
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium text-gray-700 font-heading">
                 Email
@@ -166,39 +115,14 @@ const Login = () => {
               className="w-full bg-blog-primary hover:bg-blog-secondary font-heading"
               disabled={isLoading}
             >
-              {isLoading 
-                ? (isSignUp ? 'Criando conta...' : 'Entrando...') 
-                : (isSignUp ? 'Criar Conta' : 'Entrar')
-              }
+              {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
-
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-sm text-blog-secondary hover:text-blog-primary font-heading"
-            >
-              {isSignUp 
-                ? 'Já tem uma conta? Faça login' 
-                : 'Não tem uma conta? Criar conta'
-              }
-            </button>
-          </div>
 
           <div className="mt-6 text-center">
             <Link to="/" className="text-sm text-blog-secondary hover:text-blog-primary font-heading">
               ← Voltar ao site
             </Link>
-          </div>
-
-          {/* Demo credentials */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-700 mb-2 font-heading">Credenciais para demonstração:</h4>
-            <div className="text-xs text-gray-600 space-y-1">
-              <div><strong>Email:</strong> admin@pontovista.com</div>
-              <div><strong>Senha:</strong> admin123</div>
-            </div>
           </div>
         </CardContent>
       </Card>
