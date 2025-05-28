@@ -38,47 +38,32 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
-
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
@@ -109,6 +94,146 @@
 }
 
 @layer components {
+  /* Enhanced article content styles */
+  .article-content {
+    @apply text-gray-800 leading-relaxed;
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.7;
+  }
+
+  .article-content h1 {
+    @apply text-3xl font-bold text-gray-900 mb-6 mt-8 leading-tight;
+    font-family: 'Montserrat', sans-serif;
+    border-bottom: 3px solid #0A1D56;
+    padding-bottom: 0.5rem;
+  }
+  
+  .article-content h2 {
+    @apply text-2xl font-bold text-gray-900 mb-5 mt-8 leading-tight;
+    font-family: 'Montserrat', sans-serif;
+    border-bottom: 2px solid #2563EB;
+    padding-bottom: 0.25rem;
+  }
+  
+  .article-content h3 {
+    @apply text-xl font-bold text-gray-900 mb-4 mt-6 leading-tight;
+    font-family: 'Montserrat', sans-serif;
+    color: #0A1D56;
+  }
+
+  .article-content h4 {
+    @apply text-lg font-semibold text-gray-800 mb-3 mt-5;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .article-content h5 {
+    @apply text-base font-semibold text-gray-800 mb-2 mt-4;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .article-content h6 {
+    @apply text-sm font-semibold text-gray-700 mb-2 mt-3;
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .article-content p {
+    @apply text-gray-700 leading-relaxed mb-6 text-base;
+    font-family: 'Montserrat', sans-serif;
+    text-align: justify;
+  }
+  
+  .article-content blockquote {
+    @apply border-l-4 border-blue-500 bg-blue-50 p-6 italic text-gray-700 my-8 rounded-r-lg;
+    font-family: 'Montserrat', sans-serif;
+    position: relative;
+  }
+
+  .article-content blockquote::before {
+    content: '"';
+    @apply text-4xl text-blue-500 absolute -top-2 -left-1;
+    font-family: serif;
+  }
+  
+  .article-content ul {
+    @apply mb-6 ml-6 space-y-2;
+  }
+
+  .article-content ol {
+    @apply mb-6 ml-6 space-y-2;
+  }
+  
+  .article-content li {
+    @apply text-gray-700 leading-relaxed;
+    font-family: 'Montserrat', sans-serif;
+    position: relative;
+  }
+
+  .article-content ul li {
+    list-style: none;
+  }
+
+  .article-content ul li::before {
+    content: '•';
+    @apply text-blue-600 font-bold absolute -left-4;
+  }
+
+  .article-content ol li {
+    list-style: decimal;
+    @apply ml-2;
+  }
+  
+  .article-content a {
+    @apply text-blue-600 hover:text-blue-800 underline font-medium transition-colors;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
+  .article-content a:hover {
+    @apply bg-blue-50 px-1 rounded;
+  }
+
+  .article-content img {
+    @apply max-w-full h-auto mx-auto my-8 rounded-lg shadow-lg;
+    display: block;
+  }
+
+  .article-content hr {
+    @apply my-10 border-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent;
+  }
+
+  .article-content strong {
+    @apply font-bold text-gray-900;
+  }
+
+  .article-content em {
+    @apply italic text-gray-800;
+  }
+
+  .article-content code {
+    @apply bg-gray-100 text-red-600 px-2 py-1 rounded text-sm font-mono;
+  }
+
+  .article-content pre {
+    @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-6;
+  }
+
+  .article-content pre code {
+    @apply bg-transparent text-gray-100 p-0;
+  }
+
+  .article-content table {
+    @apply w-full border-collapse border border-gray-300 my-6;
+  }
+
+  .article-content th {
+    @apply bg-gray-100 border border-gray-300 px-4 py-2 font-semibold text-left;
+  }
+
+  .article-content td {
+    @apply border border-gray-300 px-4 py-2;
+  }
+
+  /* Legacy prose styles for compatibility */
   .prose {
     @apply max-w-none;
   }

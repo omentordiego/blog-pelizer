@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
-import { getArticleBySlug, getCategoryById } from '@/data/mockData';
+import { getArticleBySlug, getCategoryById, markdownToHtml } from '@/data/mockData';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
 
@@ -76,6 +76,9 @@ const Article = () => {
     }
   };
 
+  // Process article content - convert Markdown to HTML if needed
+  const processedContent = article.content ? markdownToHtml(article.content) : '';
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -124,9 +127,11 @@ const Article = () => {
             </h1>
 
             {/* Summary */}
-            <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-              {article.summary || 'Resumo não disponível'}
-            </p>
+            {article.summary && (
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                {article.summary}
+              </p>
+            )}
 
             {/* Meta Information */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 pb-6 border-b border-gray-200">
@@ -184,18 +189,20 @@ const Article = () => {
             </div>
 
             {/* Featured Image */}
-            <div className="mb-8">
-              <img
-                src={article.cover_image || '/placeholder.svg'}
-                alt={article.title}
-                className="w-full h-64 lg:h-96 object-cover rounded-lg"
-              />
-            </div>
+            {article.cover_image && (
+              <div className="mb-8">
+                <img
+                  src={article.cover_image}
+                  alt={article.title}
+                  className="w-full h-64 lg:h-96 object-cover rounded-lg"
+                />
+              </div>
+            )}
 
-            {/* Article Content */}
+            {/* Article Content - Now with proper formatting */}
             <div 
-              className="prose prose-lg max-w-none mb-12"
-              dangerouslySetInnerHTML={{ __html: article.content || '' }}
+              className="article-content prose prose-lg max-w-none mb-12"
+              dangerouslySetInnerHTML={{ __html: processedContent }}
             />
 
             {/* Author Info */}
