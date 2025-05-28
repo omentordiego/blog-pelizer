@@ -7,12 +7,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useCategories } from '@/contexts/CategoriesContext';
 
 const AddCategoryModal = () => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const { toast } = useToast();
+  const { addCategory } = useCategories();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,8 +28,8 @@ const AddCategoryModal = () => {
       return;
     }
 
-    // Simular criação da categoria
-    console.log('Nova categoria:', { name, description });
+    // Adicionar categoria usando o contexto
+    addCategory({ name: name.trim(), description: description.trim() });
     
     toast({
       title: "Sucesso",

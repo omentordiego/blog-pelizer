@@ -7,8 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { categories } from '@/data/mockData';
-import RichTextEditor from './RichTextEditor';
+import { useCategories } from '@/contexts/CategoriesContext';
+import WordPressEditor from './WordPressEditor';
 
 const AddArticleModal = () => {
   const [open, setOpen] = useState(false);
@@ -17,8 +17,9 @@ const AddArticleModal = () => {
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [author, setAuthor] = useState('');
-  const [coverImage, setCoverImage] = useState('');
+  const [featuredImage, setFeaturedImage] = useState('');
   const { toast } = useToast();
+  const { categories } = useCategories();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +40,7 @@ const AddArticleModal = () => {
       content, 
       categoryId, 
       author, 
-      coverImage: coverImage || 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+      featuredImage: featuredImage || 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
     });
     
     toast({
@@ -53,7 +54,7 @@ const AddArticleModal = () => {
     setContent('');
     setCategoryId('');
     setAuthor('');
-    setCoverImage('');
+    setFeaturedImage('');
     setOpen(false);
   };
 
@@ -65,35 +66,11 @@ const AddArticleModal = () => {
           Novo Artigo
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[95vw] lg:max-w-[1200px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-heading text-xl">Adicionar Novo Artigo</DialogTitle>
+          <DialogTitle className="font-heading text-xl">Criar Novo Artigo</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Título *</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Digite o título do artigo"
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="author">Autor *</Label>
-              <Input
-                id="author"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                placeholder="Nome do autor"
-                required
-              />
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="category">Categoria *</Label>
@@ -112,37 +89,30 @@ const AddArticleModal = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="coverImage">Imagem de Capa</Label>
+              <Label htmlFor="author">Autor *</Label>
               <Input
-                id="coverImage"
-                value={coverImage}
-                onChange={(e) => setCoverImage(e.target.value)}
-                placeholder="URL da imagem de capa (opcional)"
+                id="author"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                placeholder="Nome do autor"
+                required
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="summary">Resumo *</Label>
-            <RichTextEditor
-              value={summary}
-              onChange={setSummary}
-              placeholder="Digite um resumo do artigo"
-              rows={3}
-            />
-          </div>
+          {/* Editor WordPress */}
+          <WordPressEditor
+            title={title}
+            onTitleChange={setTitle}
+            content={content}
+            onContentChange={setContent}
+            summary={summary}
+            onSummaryChange={setSummary}
+            featuredImage={featuredImage}
+            onFeaturedImageChange={setFeaturedImage}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="content">Conteúdo *</Label>
-            <RichTextEditor
-              value={content}
-              onChange={setContent}
-              placeholder="Digite o conteúdo completo do artigo usando Markdown para formatação"
-              rows={12}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-4 border-t">
             <Button 
               type="button" 
               variant="outline" 
@@ -155,7 +125,7 @@ const AddArticleModal = () => {
               type="submit"
               className="bg-blog-primary hover:bg-blog-secondary transition-all duration-200 hover:scale-105 font-heading"
             >
-              Criar Artigo
+              Publicar Artigo
             </Button>
           </div>
         </form>

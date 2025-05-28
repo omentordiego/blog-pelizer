@@ -3,10 +3,17 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
-import { articles, categories } from '@/data/mockData';
+import { articles } from '@/data/mockData';
 import AddCategoryModal from './AddCategoryModal';
+import { useCategories } from '@/contexts/CategoriesContext';
 
 const CategoryManagement = () => {
+  const { categories, deleteCategory } = useCategories();
+
+  const handleDelete = (categoryId: string) => {
+    deleteCategory(categoryId);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -35,6 +42,7 @@ const CategoryManagement = () => {
                       <Button 
                         variant="ghost" 
                         size="sm"
+                        onClick={() => handleDelete(category.id)}
                         className="hover:bg-red-50 hover:text-red-600 transition-all duration-200 hover:scale-110"
                       >
                         <Trash2 className="w-3 h-3" />
