@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
+import AdDisplay from '@/components/AdDisplay';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
 
@@ -26,6 +27,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
+      
+      {/* Header Advertisement */}
+      <AdDisplay position="header" className="bg-gray-50 py-2" />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blog-primary to-blog-secondary text-white py-16 lg:py-24">
@@ -92,9 +96,21 @@ const Index = () => {
 
             <div className="max-w-6xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-center">
-                {featuredArticles.slice(0, 2).map((article) => (
-                  <ArticleCard key={article.id} article={article} featured />
+                {featuredArticles.slice(0, 2).map((article, index) => (
+                  <div key={article.id}>
+                    <ArticleCard article={article} featured />
+                    {index === 0 && (
+                      <div className="mt-8 lg:hidden">
+                        <AdDisplay position="between_articles" />
+                      </div>
+                    )}
+                  </div>
                 ))}
+              </div>
+              
+              {/* Advertisement between featured articles */}
+              <div className="my-8 hidden lg:block">
+                <AdDisplay position="between_articles" className="text-center" />
               </div>
               
               {featuredArticles.length > 2 && (
@@ -131,8 +147,15 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recentArticles.map((article) => (
-                <ArticleCard key={article.id} article={article} />
+              {recentArticles.map((article, index) => (
+                <div key={article.id}>
+                  <ArticleCard article={article} />
+                  {(index + 1) % 3 === 0 && index < recentArticles.length - 1 && (
+                    <div className="col-span-full mt-6 mb-6">
+                      <AdDisplay position="between_articles" className="text-center" />
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -195,6 +218,9 @@ const Index = () => {
           </Link>
         </div>
       </section>
+
+      {/* Site Footer Advertisement */}
+      <AdDisplay position="site_footer" className="bg-gray-50 py-4" />
 
       <Footer />
     </div>

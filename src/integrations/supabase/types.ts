@@ -71,6 +71,89 @@ export type Database = {
         }
         Relationships: []
       }
+      advertisement_stats: {
+        Row: {
+          advertisement_id: string
+          clicks: number
+          created_at: string
+          date: string
+          id: string
+          impressions: number
+        }
+        Insert: {
+          advertisement_id: string
+          clicks?: number
+          created_at?: string
+          date?: string
+          id?: string
+          impressions?: number
+        }
+        Update: {
+          advertisement_id?: string
+          clicks?: number
+          created_at?: string
+          date?: string
+          id?: string
+          impressions?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_stats_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisements: {
+        Row: {
+          click_count: number
+          content: string
+          created_at: string
+          end_date: string | null
+          id: string
+          impression_count: number
+          is_active: boolean
+          link_url: string | null
+          position: string
+          start_date: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          click_count?: number
+          content: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          impression_count?: number
+          is_active?: boolean
+          link_url?: string | null
+          position: string
+          start_date?: string | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          click_count?: number
+          content?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          impression_count?: number
+          is_active?: boolean
+          link_url?: string | null
+          position?: string
+          start_date?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       analytics_data: {
         Row: {
           created_at: string | null

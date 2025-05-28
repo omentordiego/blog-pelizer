@@ -14,6 +14,7 @@ const ArticleManagement = lazy(() => import('@/components/admin/ArticleManagemen
 const CategoryManagement = lazy(() => import('@/components/admin/CategoryManagement'));
 const NewsletterManagement = lazy(() => import('@/components/admin/NewsletterManagement'));
 const AnalyticsSection = lazy(() => import('@/components/admin/AnalyticsSection'));
+const AdvertisementManagement = lazy(() => import('@/components/admin/AdvertisementManagement'));
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center py-8">
@@ -77,9 +78,10 @@ const Admin = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="articles" className="space-y-6">
-          <TabsList className="grid w-full lg:w-auto grid-cols-4">
+          <TabsList className="grid w-full lg:w-auto grid-cols-5">
             <TabsTrigger value="articles" className="font-heading">Artigos</TabsTrigger>
             <TabsTrigger value="categories" className="font-heading">Categorias</TabsTrigger>
+            <TabsTrigger value="advertisements" className="font-heading">Anúncios</TabsTrigger>
             <TabsTrigger value="newsletter" className="font-heading">Newsletter</TabsTrigger>
             <TabsTrigger value="analytics" className="font-heading">Analytics</TabsTrigger>
           </TabsList>
@@ -98,6 +100,13 @@ const Admin = () => {
           <TabsContent value="categories" className="space-y-6">
             <Suspense fallback={<LoadingSpinner />}>
               <CategoryManagement />
+            </Suspense>
+          </TabsContent>
+
+          {/* Advertisements Management */}
+          <TabsContent value="advertisements" className="space-y-6">
+            <Suspense fallback={<LoadingSpinner />}>
+              <AdvertisementManagement />
             </Suspense>
           </TabsContent>
 
