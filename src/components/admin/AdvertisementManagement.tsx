@@ -106,7 +106,6 @@ const AdvertisementManagement = () => {
                     <Switch
                       checked={ad.is_active}
                       onCheckedChange={() => handleToggleActive(ad)}
-                      size="sm"
                     />
                   </div>
                 </div>

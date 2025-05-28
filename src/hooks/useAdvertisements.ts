@@ -17,7 +17,7 @@ export const useAdvertisements = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setAdvertisements(data || []);
+      setAdvertisements((data || []) as Advertisement[]);
     } catch (error) {
       console.error('Erro ao buscar anúncios:', error);
       toast({
@@ -44,13 +44,13 @@ export const useAdvertisements = () => {
       const { data, error } = await query;
       if (error) throw error;
       
-      return data?.filter(ad => {
+      return (data?.filter(ad => {
         const now = new Date();
         const startDate = ad.start_date ? new Date(ad.start_date) : null;
         const endDate = ad.end_date ? new Date(ad.end_date) : null;
         
         return (!startDate || startDate <= now) && (!endDate || endDate >= now);
-      }) || [];
+      }) || []) as Advertisement[];
     } catch (error) {
       console.error('Erro ao buscar anúncios ativos:', error);
       return [];
@@ -67,13 +67,13 @@ export const useAdvertisements = () => {
 
       if (error) throw error;
 
-      setAdvertisements(prev => [data, ...prev]);
+      setAdvertisements(prev => [data as Advertisement, ...prev]);
       toast({
         title: "Sucesso",
         description: "Anúncio criado com sucesso",
       });
 
-      return data;
+      return data as Advertisement;
     } catch (error) {
       console.error('Erro ao criar anúncio:', error);
       toast({
@@ -97,7 +97,7 @@ export const useAdvertisements = () => {
       if (error) throw error;
 
       setAdvertisements(prev => 
-        prev.map(ad => ad.id === id ? { ...ad, ...data } : ad)
+        prev.map(ad => ad.id === id ? { ...ad, ...data } as Advertisement : ad)
       );
 
       toast({
@@ -105,7 +105,7 @@ export const useAdvertisements = () => {
         description: "Anúncio atualizado com sucesso",
       });
 
-      return data;
+      return data as Advertisement;
     } catch (error) {
       console.error('Erro ao atualizar anúncio:', error);
       toast({
@@ -145,11 +145,14 @@ export const useAdvertisements = () => {
   const trackImpression = async (advertisementId: string) => {
     try {
       // Incrementar impressões na tabela principal
-      await supabase.rpc('increment', {
-        table_name: 'advertisements',
-        row_id: advertisementId,
-        column_name: 'impression_count'
-      });
+      const { error: updateError } = await supabase
+        .from('advertisements')
+        .update({ 
+          impression_count: supabase.sql`impression_count + 1` 
+        })
+        .eq('id', advertisementId);
+
+      if (updateError) console.error('Erro ao incrementar impressões:', updateError);
 
       // Registrar na tabela de estatísticas
       const today = new Date().toISOString().split('T')[0];
@@ -173,11 +176,14 @@ export const useAdvertisements = () => {
   const trackClick = async (advertisementId: string) => {
     try {
       // Incrementar cliques na tabela principal
-      await supabase.rpc('increment', {
-        table_name: 'advertisements',
-        row_id: advertisementId,
-        column_name: 'click_count'
-      });
+      const { error: updateError } = await supabase
+        .from('advertisements')
+        .update({ 
+          click_count: supabase.sql`click_count + 1` 
+        })
+        .eq('id', advertisementId);
+
+      if (updateError) console.error('Erro ao incrementar cliques:', updateError);
 
       // Registrar na tabela de estatísticas
       const today = new Date().toISOString().split('T')[0];
