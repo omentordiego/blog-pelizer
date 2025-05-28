@@ -5,15 +5,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useNewsletter } from '@/contexts/NewsletterContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 const Newsletter = () => {
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { subscribe, subscribers } = useNewsletter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
       toast({
@@ -24,13 +28,24 @@ const Newsletter = () => {
       return;
     }
 
-    // Simular inscrição na newsletter
-    console.log('Email inscrito:', email);
-    setIsSubscribed(true);
-    toast({
-      title: "Sucesso!",
-      description: "Você foi inscrito na nossa newsletter",
-    });
+    setIsSubmitting(true);
+    try {
+      await subscribe(email, name);
+      setIsSubscribed(true);
+      toast({
+        title: "Sucesso!",
+        description: "Você foi inscrito na nossa newsletter",
+      });
+    } catch (error) {
+      console.error('Erro ao inscrever:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao processar sua inscrição. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const benefits = [
@@ -52,7 +67,7 @@ const Newsletter = () => {
   ];
 
   const stats = [
-    { number: '5.2K+', label: 'Inscritos ativos' },
+    { number: `${subscribers.filter(s => s.is_active).length}+`, label: 'Inscritos ativos' },
     { number: '95%', label: 'Taxa de abertura' },
     { number: '4.8★', label: 'Avaliação média' }
   ];
@@ -120,7 +135,14 @@ const Newsletter = () => {
               insights para uma cidadania mais consciente, direto na sua caixa de entrada.
             </p>
 
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+            <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-3">
+              <Input
+                type="text"
+                placeholder="Seu nome (opcional)"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="bg-white text-gray-900"
+              />
               <div className="flex flex-col sm:flex-row gap-3">
                 <Input
                   type="email"
@@ -134,9 +156,10 @@ const Newsletter = () => {
                   type="submit" 
                   size="lg" 
                   variant="secondary"
+                  disabled={isSubmitting}
                   className="bg-white text-blog-primary hover:bg-gray-100"
                 >
-                  Inscrever-se Grátis
+                  {isSubmitting ? 'Inscrevendo...' : 'Inscrever-se Grátis'}
                 </Button>
               </div>
               <p className="text-sm text-blue-200 mt-3">
@@ -255,7 +278,14 @@ const Newsletter = () => {
             que realmente fazem diferença na formação da opinião.
           </p>
           
-          <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+          <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-3">
+            <Input
+              type="text"
+              placeholder="Seu nome (opcional)"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="bg-white text-gray-900"
+            />
             <div className="flex flex-col sm:flex-row gap-3">
               <Input
                 type="email"
@@ -269,9 +299,10 @@ const Newsletter = () => {
                 type="submit" 
                 size="lg" 
                 variant="secondary"
+                disabled={isSubmitting}
                 className="bg-white text-blog-primary hover:bg-gray-100"
               >
-                Começar Agora
+                {isSubmitting ? 'Inscrevendo...' : 'Começar Agora'}
               </Button>
             </div>
           </form>

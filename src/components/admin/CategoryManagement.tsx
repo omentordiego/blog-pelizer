@@ -3,16 +3,36 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
-import { articles } from '@/data/mockData';
+import { useArticles } from '@/contexts/ArticlesContext';
 import AddCategoryModal from './AddCategoryModal';
 import { useCategories } from '@/contexts/CategoriesContext';
 
 const CategoryManagement = () => {
-  const { categories, deleteCategory } = useCategories();
+  const { categories, deleteCategory, isLoading } = useCategories();
+  const { articles } = useArticles();
 
-  const handleDelete = (categoryId: string) => {
-    deleteCategory(categoryId);
+  const handleDelete = async (categoryId: string) => {
+    if (confirm('Tem certeza que deseja deletar esta categoria?')) {
+      try {
+        await deleteCategory(categoryId);
+      } catch (error) {
+        console.error('Erro ao deletar categoria:', error);
+      }
+    }
   };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blog-primary mx-auto mb-4"></div>
+            <p className="text-gray-600">Carregando categorias...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -25,7 +45,7 @@ const CategoryManagement = () => {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {categories.map((category) => {
-            const categoryArticles = articles.filter(a => a.categoryId === category.id);
+            const categoryArticles = articles.filter(a => a.category_id === category.id);
             return (
               <Card key={category.id}>
                 <CardContent className="p-4">
@@ -57,6 +77,12 @@ const CategoryManagement = () => {
               </Card>
             );
           })}
+          
+          {categories.length === 0 && (
+            <div className="col-span-full text-center py-8">
+              <p className="text-gray-500">Nenhuma categoria encontrada.</p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

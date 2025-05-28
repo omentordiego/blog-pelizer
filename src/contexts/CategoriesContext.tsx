@@ -1,20 +1,22 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { categories as mockCategories } from '@/data/mockData';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Category {
   id: string;
   name: string;
   description: string;
   slug: string;
+  color?: string;
 }
 
 interface CategoriesContextType {
   categories: Category[];
-  addCategory: (category: Omit<Category, 'id' | 'slug'>) => void;
-  updateCategory: (id: string, category: Partial<Category>) => void;
-  deleteCategory: (id: string) => void;
-  refreshCategories: () => void;
+  addCategory: (category: Omit<Category, 'id' | 'slug'>) => Promise<void>;
+  updateCategory: (id: string, category: Partial<Category>) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
+  refreshCategories: () => Promise<void>;
+  isLoading: boolean;
 }
 
 const CategoriesContext = createContext<CategoriesContextType | null>(null);
@@ -28,7 +30,8 @@ export const useCategories = () => {
 };
 
 export const CategoriesProvider = ({ children }: { children: React.ReactNode }) => {
-  const [categories, setCategories] = useState<Category[]>(mockCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const generateSlug = (name: string): string => {
     return name
@@ -41,34 +44,106 @@ export const CategoriesProvider = ({ children }: { children: React.ReactNode }) 
       .trim();
   };
 
-  const addCategory = (categoryData: Omit<Category, 'id' | 'slug'>) => {
-    const newCategory: Category = {
-      id: Date.now().toString(),
-      slug: generateSlug(categoryData.name),
-      ...categoryData,
-    };
-    
-    setCategories(prev => [...prev, newCategory]);
-    console.log('Nova categoria adicionada:', newCategory);
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Erro ao buscar categorias:', error);
+        return;
+      }
+
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Erro ao buscar categorias:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const updateCategory = (id: string, categoryData: Partial<Category>) => {
-    setCategories(prev => 
-      prev.map(cat => 
-        cat.id === id 
-          ? { ...cat, ...categoryData, slug: categoryData.name ? generateSlug(categoryData.name) : cat.slug }
-          : cat
-      )
-    );
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const addCategory = async (categoryData: Omit<Category, 'id' | 'slug'>) => {
+    try {
+      const slug = generateSlug(categoryData.name);
+      
+      const { data, error } = await supabase
+        .from('categories')
+        .insert([
+          {
+            name: categoryData.name,
+            description: categoryData.description,
+            slug: slug,
+            color: categoryData.color || '#0A1D56'
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Erro ao adicionar categoria:', error);
+        throw error;
+      }
+
+      console.log('Nova categoria adicionada:', data);
+      await refreshCategories();
+    } catch (error) {
+      console.error('Erro ao adicionar categoria:', error);
+      throw error;
+    }
   };
 
-  const deleteCategory = (id: string) => {
-    setCategories(prev => prev.filter(cat => cat.id !== id));
+  const updateCategory = async (id: string, categoryData: Partial<Category>) => {
+    try {
+      const updateData: any = { ...categoryData };
+      if (categoryData.name) {
+        updateData.slug = generateSlug(categoryData.name);
+      }
+
+      const { error } = await supabase
+        .from('categories')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) {
+        console.error('Erro ao atualizar categoria:', error);
+        throw error;
+      }
+
+      await refreshCategories();
+    } catch (error) {
+      console.error('Erro ao atualizar categoria:', error);
+      throw error;
+    }
   };
 
-  const refreshCategories = () => {
-    // Em uma aplicação real, isso faria uma nova requisição para a API
+  const deleteCategory = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Erro ao deletar categoria:', error);
+        throw error;
+      }
+
+      await refreshCategories();
+    } catch (error) {
+      console.error('Erro ao deletar categoria:', error);
+      throw error;
+    }
+  };
+
+  const refreshCategories = async () => {
     console.log('Atualizando categorias...');
+    await fetchCategories();
   };
 
   return (
@@ -77,7 +152,8 @@ export const CategoriesProvider = ({ children }: { children: React.ReactNode }) 
       addCategory,
       updateCategory,
       deleteCategory,
-      refreshCategories
+      refreshCategories,
+      isLoading
     }}>
       {children}
     </CategoriesContext.Provider>

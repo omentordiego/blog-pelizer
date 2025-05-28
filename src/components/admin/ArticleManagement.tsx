@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Edit, Eye, Trash2, Calendar } from 'lucide-react';
-import { articles, categories } from '@/data/mockData';
+import { useArticles } from '@/contexts/ArticlesContext';
+import { useCategories } from '@/contexts/CategoriesContext';
 import AddArticleModal from './AddArticleModal';
 
 interface ArticleManagementProps {
@@ -14,9 +15,35 @@ interface ArticleManagementProps {
 }
 
 const ArticleManagement = ({ searchTerm, onSearchChange }: ArticleManagementProps) => {
+  const { articles, deleteArticle, isLoading } = useArticles();
+  const { categories } = useCategories();
+
   const filteredArticles = articles.filter(article =>
     article.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleDelete = async (articleId: string) => {
+    if (confirm('Tem certeza que deseja deletar este artigo?')) {
+      try {
+        await deleteArticle(articleId);
+      } catch (error) {
+        console.error('Erro ao deletar artigo:', error);
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blog-primary mx-auto mb-4"></div>
+            <p className="text-gray-600">Carregando artigos...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -37,14 +64,17 @@ const ArticleManagement = ({ searchTerm, onSearchChange }: ArticleManagementProp
       <CardContent>
         <div className="space-y-4">
           {filteredArticles.map((article) => {
-            const category = categories.find(c => c.id === article.categoryId);
+            const category = categories.find(c => c.id === article.category_id);
             return (
               <div key={article.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="font-semibold text-gray-900 font-heading">{article.title}</h3>
-                    {article.featured && (
-                      <Badge className="bg-blog-accent text-blog-primary">Destaque</Badge>
+                    {article.is_published && (
+                      <Badge className="bg-green-100 text-green-800">Publicado</Badge>
+                    )}
+                    {!article.is_published && (
+                      <Badge variant="outline">Rascunho</Badge>
                     )}
                     {category && (
                       <Badge variant="outline">{category.name}</Badge>
@@ -55,7 +85,7 @@ const ArticleManagement = ({ searchTerm, onSearchChange }: ArticleManagementProp
                     <span>Por {article.author}</span>
                     <span>
                       <Calendar className="w-3 h-3 inline mr-1" />
-                      {new Date(article.publishDate).toLocaleDateString('pt-BR')}
+                      {new Date(article.created_at).toLocaleDateString('pt-BR')}
                     </span>
                     <span>
                       <Eye className="w-3 h-3 inline mr-1" />
@@ -81,6 +111,7 @@ const ArticleManagement = ({ searchTerm, onSearchChange }: ArticleManagementProp
                   <Button 
                     variant="ghost" 
                     size="sm"
+                    onClick={() => handleDelete(article.id)}
                     className="hover:bg-red-50 hover:text-red-600 transition-all duration-200 hover:scale-110"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -89,6 +120,12 @@ const ArticleManagement = ({ searchTerm, onSearchChange }: ArticleManagementProp
               </div>
             );
           })}
+          
+          {filteredArticles.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Nenhum artigo encontrado.</p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
