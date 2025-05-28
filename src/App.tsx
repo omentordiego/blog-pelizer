@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,36 +22,38 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CategoriesProvider>
-        <ArticlesProvider>
-          <NewsletterProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/artigo/:slug" element={<Article />} />
-                  <Route path="/sobre" element={<About />} />
-                  <Route path="/categorias" element={<Categories />} />
-                  <Route path="/categorias/:slug" element={<Category />} />
-                  <Route path="/newsletter" element={<Newsletter />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/login" element={<Login />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </NewsletterProvider>
-        </ArticlesProvider>
-      </CategoriesProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CategoriesProvider>
+          <ArticlesProvider>
+            <NewsletterProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/artigo/:slug" element={<Article />} />
+                    <Route path="/sobre" element={<About />} />
+                    <Route path="/categorias" element={<Categories />} />
+                    <Route path="/categorias/:slug" element={<Category />} />
+                    <Route path="/newsletter" element={<Newsletter />} />
+                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/login" element={<Login />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </TooltipProvider>
+            </NewsletterProvider>
+          </ArticlesProvider>
+        </CategoriesProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
