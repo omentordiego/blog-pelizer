@@ -32,15 +32,18 @@ const AddCategoryModal = () => {
     setIsSubmitting(true);
 
     try {
-      // Adicionar categoria usando o contexto
-      await addCategory({ name: name.trim(), description: description.trim() });
+      await addCategory({ 
+        name: name.trim(), 
+        description: description.trim(),
+        color: '#0A1D56'
+      });
       
       toast({
         title: "Sucesso",
         description: "Categoria criada com sucesso!",
       });
 
-      // Resetar formulário e fechar modal
+      // Reset form and close modal
       setName('');
       setDescription('');
       setOpen(false);
@@ -49,7 +52,7 @@ const AddCategoryModal = () => {
       
       toast({
         title: "Erro",
-        description: "Não foi possível criar a categoria. Verifique suas permissões.",
+        description: "Não foi possível criar a categoria. Tente novamente.",
         variant: "destructive",
       });
     } finally {

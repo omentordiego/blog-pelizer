@@ -1,14 +1,19 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { User, Session } from '@supabase/supabase-js';
 
-interface User {
+interface AdminUser {
   id: string;
   email: string;
   name: string;
+  role: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: AdminUser | null;
+  session: Session | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
@@ -25,44 +30,92 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AdminUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Verificar se há um usuário logado no localStorage
+  const fetchAdminUser = async (userId: string) => {
     try {
-      const savedUser = localStorage.getItem('auth_user');
-      if (savedUser) {
-        const parsedUser = JSON.parse(savedUser);
-        setUser(parsedUser);
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        console.error('Erro ao buscar dados do admin:', error);
+        return null;
       }
+
+      return data;
     } catch (error) {
-      console.error('Erro ao recuperar usuário do localStorage:', error);
-      localStorage.removeItem('auth_user');
+      console.error('Erro ao buscar dados do admin:', error);
+      return null;
     }
-    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state change:', event, session);
+        setSession(session);
+        
+        if (session?.user) {
+          // Fetch admin user data
+          const adminUser = await fetchAdminUser(session.user.id);
+          if (adminUser) {
+            setUser(adminUser);
+          } else {
+            // If no admin user found, check if this is the demo user
+            if (session.user.email === 'admin@pontovista.com') {
+              setUser({
+                id: '1',
+                email: 'admin@pontovista.com',
+                name: 'Vanderlei Pelizer',
+                role: 'admin'
+              });
+            } else {
+              setUser(null);
+            }
+          }
+        } else {
+          setUser(null);
+        }
+        
+        setIsLoading(false);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        console.log('Existing session found:', session);
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
     try {
-      // Simular autenticação (em produção, seria uma chamada à API)
-      if (email === 'admin@pontovista.com' && password === 'admin123') {
-        const user = {
-          id: '1',
-          email: 'admin@pontovista.com',
-          name: 'Vanderlei Pelizer'
-        };
-        
-        setUser(user);
-        localStorage.setItem('auth_user', JSON.stringify(user));
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error('Erro no login:', error);
         setIsLoading(false);
-        return true;
+        return false;
       }
-      
-      setIsLoading(false);
-      return false;
+
+      console.log('Login successful:', data);
+      return true;
     } catch (error) {
       console.error('Erro no login:', error);
       setIsLoading(false);
@@ -70,13 +123,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('auth_user');
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+    } catch (error) {
+      console.error('Erro no logout:', error);
+    }
   };
 
   const value = {
     user,
+    session,
     login,
     logout,
     isLoading
