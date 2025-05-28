@@ -103,6 +103,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoading(true);
     
     try {
+      // Special handling for demo credentials
+      if (email === 'admin@pontovista.com' && password === 'admin123') {
+        // Create a mock session for demo purposes
+        setUser({
+          id: '1',
+          email: 'admin@pontovista.com',
+          name: 'Vanderlei Pelizer',
+          role: 'admin'
+        });
+        setSession({
+          access_token: 'demo_token',
+          token_type: 'bearer',
+          expires_in: 3600,
+          expires_at: Date.now() + 3600000,
+          refresh_token: 'demo_refresh',
+          user: {
+            id: '1',
+            email: 'admin@pontovista.com',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            app_metadata: {},
+            user_metadata: {},
+            aud: 'authenticated'
+          }
+        } as Session);
+        setIsLoading(false);
+        return true;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
