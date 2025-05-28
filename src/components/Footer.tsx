@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
@@ -118,7 +117,7 @@ const Footer = () => {
           <div className="col-span-1">
             <Link to="/" className="flex items-center mb-4">
               <img 
-                src="https://i.postimg.cc/LX2bQXqH/PONTO-DE-VISTA.png" 
+                src="https://i.postimg.cc/mgpyvymp/PONTO-DE-VISTA-3.png" 
                 alt="Ponto de Vista" 
                 className="h-14 w-auto brightness-0 invert"
               />

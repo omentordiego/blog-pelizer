@@ -32,7 +32,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl lg:text-6xl font-heading font-bold mb-6 animate-fade-in">
-              Ponto de Vista
+              Fala Pelizer
             </h1>
             <p className="text-xl lg:text-2xl text-blue-100 mb-4 font-heading">
               Por Vanderlei Pelizer

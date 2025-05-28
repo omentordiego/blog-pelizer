@@ -28,7 +28,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img 
-              src="https://i.postimg.cc/g0pT0DVz/PONTO-DE-VISTA-1.png" 
+              src="https://i.postimg.cc/zX57KBL7/PONTO-DE-VISTA-2.png" 
               alt="Ponto de Vista" 
               className="h-14 w-auto"
             />
