@@ -1,9 +1,9 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { User, Session } from '@supabase/supabase-js';
+import { useToast } from '@/hooks/use-toast';
 
-interface AdminUser {
+interface User {
   id: string;
   email: string;
   name: string;
@@ -12,11 +12,11 @@ interface AdminUser {
 }
 
 interface AuthContextType {
-  user: AdminUser | null;
-  session: Session | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  user: User | null;
   isLoading: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -30,9 +30,9 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   const fetchAdminUser = async (userId: string) => {
     try {
@@ -47,127 +47,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return null;
       }
 
-      return data;
+      return {
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        role: data.role || 'editor',
+        avatar: data.avatar
+      };
     } catch (error) {
       console.error('Erro ao buscar dados do admin:', error);
       return null;
     }
   };
 
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state change:', event, session);
-        setSession(session);
-        
-        if (session?.user) {
-          // Check if this is the demo user first
-          if (session.user.email === 'admin@pontovista.com') {
-            setUser({
-              id: session.user.id,
-              email: 'admin@pontovista.com',
-              name: 'Vanderlei Pelizer',
-              role: 'admin'
-            });
-          } else {
-            // Try to fetch admin user data from database
-            const adminUser = await fetchAdminUser(session.user.id);
-            if (adminUser) {
-              setUser({
-                id: adminUser.id,
-                email: adminUser.email,
-                name: adminUser.name,
-                role: adminUser.role || 'editor',
-                avatar: adminUser.avatar || undefined
-              });
-            } else {
-              // Create admin user entry if it doesn't exist
-              try {
-                const { data: newAdminUser, error } = await supabase
-                  .from('admin_users')
-                  .insert([
-                    {
-                      user_id: session.user.id,
-                      email: session.user.email || '',
-                      name: session.user.user_metadata?.full_name || session.user.email || 'Usuário',
-                      role: 'admin'
-                    }
-                  ])
-                  .select()
-                  .single();
-
-                if (error) {
-                  console.error('Erro ao criar usuário admin:', error);
-                  setUser(null);
-                } else {
-                  setUser({
-                    id: newAdminUser.id,
-                    email: newAdminUser.email,
-                    name: newAdminUser.name,
-                    role: newAdminUser.role || 'admin',
-                    avatar: newAdminUser.avatar || undefined
-                  });
-                }
-              } catch (error) {
-                console.error('Erro ao criar usuário admin:', error);
-                setUser(null);
-              }
-            }
-          }
-        } else {
-          setUser(null);
-        }
-        
-        setIsLoading(false);
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        console.log('Existing session found:', session);
-      } else {
-        setIsLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    
     try {
-      // Special handling for demo credentials
+      setIsLoading(true);
+
+      // For demo purposes, check if it's the demo credentials
       if (email === 'admin@pontovista.com' && password === 'admin123') {
-        // Create a mock session for demo purposes
+        // Get the demo admin user from the database
+        const { data, error } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('email', email)
+          .single();
+
+        if (error || !data) {
+          console.error('Demo admin user not found:', error);
+          return false;
+        }
+
         setUser({
-          id: 'demo-user-id',
-          email: 'admin@pontovista.com',
-          name: 'Vanderlei Pelizer',
-          role: 'admin'
+          id: data.id,
+          email: data.email,
+          name: data.name,
+          role: data.role || 'admin',
+          avatar: data.avatar
         });
-        setSession({
-          access_token: 'demo_token',
-          token_type: 'bearer',
-          expires_in: 3600,
-          expires_at: Date.now() + 3600000,
-          refresh_token: 'demo_refresh',
-          user: {
-            id: 'demo-user-id',
-            email: 'admin@pontovista.com',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            app_metadata: {},
-            user_metadata: {},
-            aud: 'authenticated'
-          }
-        } as Session);
-        setIsLoading(false);
+
         return true;
       }
 
+      // For real authentication (when properly set up)
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -175,42 +97,93 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error('Erro no login:', error);
-        setIsLoading(false);
         return false;
       }
 
-      console.log('Login successful:', data);
-      return true;
+      if (data.user) {
+        const adminUser = await fetchAdminUser(data.user.id);
+        if (adminUser) {
+          setUser(adminUser);
+          return true;
+        } else {
+          // User authenticated but not an admin
+          await supabase.auth.signOut();
+          return false;
+        }
+      }
+
+      return false;
     } catch (error) {
       console.error('Erro no login:', error);
-      setIsLoading(false);
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const logout = async () => {
     try {
-      // Handle demo logout
-      if (user?.email === 'admin@pontovista.com' && session?.access_token === 'demo_token') {
-        setUser(null);
-        setSession(null);
-        return;
-      }
-
       await supabase.auth.signOut();
       setUser(null);
-      setSession(null);
     } catch (error) {
       console.error('Erro no logout:', error);
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      
+      if (authUser) {
+        const adminUser = await fetchAdminUser(authUser.id);
+        setUser(adminUser);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar usuário:', error);
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          const adminUser = await fetchAdminUser(session.user.id);
+          setUser(adminUser);
+        }
+      } catch (error) {
+        console.error('Erro ao inicializar auth:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const adminUser = await fetchAdminUser(session.user.id);
+          setUser(adminUser);
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const value = {
     user,
-    session,
+    isLoading,
     login,
     logout,
-    isLoading
+    refreshUser
   };
 
   return (

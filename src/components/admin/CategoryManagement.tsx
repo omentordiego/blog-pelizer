@@ -2,9 +2,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useArticles } from '@/contexts/ArticlesContext';
 import AddCategoryModal from './AddCategoryModal';
+import EditCategoryModal from './EditCategoryModal';
 import { useCategories } from '@/contexts/CategoriesContext';
 
 const CategoryManagement = () => {
@@ -52,13 +53,7 @@ const CategoryManagement = () => {
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-gray-900 font-heading">{category.name}</h3>
                     <div className="flex gap-1">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="hover:bg-blue-50 hover:text-blog-primary transition-all duration-200 hover:scale-110"
-                      >
-                        <Edit className="w-3 h-3" />
-                      </Button>
+                      <EditCategoryModal category={category} />
                       <Button 
                         variant="ghost" 
                         size="sm"
