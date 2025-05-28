@@ -1,14 +1,15 @@
+
 // This file is kept for backward compatibility but most data now comes from Supabase
-// Only keeping helper functions that might still be useful
+// Helper functions updated to work with actual Supabase types
 
 import { Tables } from '@/integrations/supabase/types';
 
-// Use the actual Supabase types instead of defining our own
+// Use the actual Supabase types
 export type Article = Tables<'articles'>;
 export type Category = Tables<'categories'>;
 export type NewsletterSubscriber = Tables<'newsletter_subscribers'>;
 
-// Helper functions for data processing
+// Helper functions for data processing - updated to handle optional properties
 export const getArticleBySlug = (articles: Article[], slug: string): Article | undefined => {
   return articles.find(article => article.slug === slug);
 };
