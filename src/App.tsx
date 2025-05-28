@@ -18,6 +18,9 @@ import Category from "./pages/Category";
 import Newsletter from "./pages/Newsletter";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
+import Privacidade from "./pages/Privacidade";
+import Termos from "./pages/Termos";
+import Cookies from "./pages/Cookies";
 import NotFound from "./pages/NotFound";
 
 // Criar uma instância estável do QueryClient
@@ -51,6 +54,9 @@ function App() {
                     <Route path="/newsletter" element={<Newsletter />} />
                     <Route path="/admin" element={<Admin />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/privacidade" element={<Privacidade />} />
+                    <Route path="/termos" element={<Termos />} />
+                    <Route path="/cookies" element={<Cookies />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>

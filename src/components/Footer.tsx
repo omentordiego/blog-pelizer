@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
@@ -37,8 +38,8 @@ const Footer = () => {
     { 
       name: 'Twitter/X', 
       icon: null, 
-      href: '#',
-      customIcon: 'https://img.icons8.com/?size=100&id=fJp7hepMryiw&format=png&color=000000'
+      href: 'https://x.com/vpelizerpereira',
+      customIcon: 'https://img.icons8.com/?size=100&id=fJp7hepMryiw&format=png&color=FFFFFF'
     },
     { 
       name: 'Instagram', 
@@ -136,7 +137,7 @@ const Footer = () => {
                     <img 
                       src={social.customIcon} 
                       alt={social.name}
-                      className="w-5 h-5 brightness-0 invert opacity-75 hover:opacity-100 transition-opacity"
+                      className="w-5 h-5"
                     />
                   ) : social.icon ? (
                     <social.icon className="w-5 h-5" />
