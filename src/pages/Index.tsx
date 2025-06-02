@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, Users, Target, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,15 +14,21 @@ const Index = () => {
   const { articles } = useArticles();
   const { categories } = useCategories();
   
-  const featuredArticles = articles.filter(article => article.is_published).slice(0, 3);
-  const recentArticles = articles.filter(article => article.is_published).slice(0, 6);
+  const { featuredArticles, recentArticles, publishedCount } = useMemo(() => {
+    const published = articles.filter(article => article.is_published);
+    return {
+      featuredArticles: published.slice(0, 3),
+      recentArticles: published.slice(0, 6),
+      publishedCount: published.length
+    };
+  }, [articles]);
 
-  const stats = [
-    { icon: BookOpen, label: 'Artigos Publicados', value: `${articles.filter(a => a.is_published).length}+` },
+  const stats = useMemo(() => [
+    { icon: BookOpen, label: 'Artigos Publicados', value: `${publishedCount}+` },
     { icon: Users, label: 'Leitores Mensais', value: '15K+' },
     { icon: Target, label: 'Anos de Experiência', value: '25+' },
     { icon: TrendingUp, label: 'Inscritos Newsletter', value: '3K+' },
-  ];
+  ], [publishedCount]);
 
   return (
     <div className="min-h-screen bg-white">

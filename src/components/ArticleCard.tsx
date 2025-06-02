@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Article, getCategoryById } from '@/data/mockData';
 import { useCategories } from '@/contexts/CategoriesContext';
+import OptimizedImage from '@/components/OptimizedImage';
 
 interface ArticleCardProps {
   article: Article;
@@ -26,12 +27,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, featured = false }) 
       featured ? 'lg:col-span-2 lg:row-span-2' : ''
     }`}>
       <div className="relative overflow-hidden">
-        <img
+        <OptimizedImage
           src={article.cover_image || '/placeholder.svg'}
           alt={article.title}
-          className={`w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
-            featured ? 'h-64 lg:h-80' : 'h-48'
-          }`}
+          className={featured ? 'h-64 lg:h-80' : 'h-48'}
+          priority={featured}
         />
         <div className="absolute top-4 left-4">
           {category && (

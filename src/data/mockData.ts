@@ -48,8 +48,8 @@ A democracia não é um sistema perfeito, mas é o melhor que conhecemos para ga
     updated_at: '2024-01-15T10:00:00Z',
     views: 1250,
     read_time: 8,
-    seo_title: null,
-    seo_description: null
+    seo_title: 'O Papel da Democracia no Brasil Contemporâneo - Ponto de Vista',
+    seo_description: 'Uma análise profunda sobre os desafios e oportunidades da democracia brasileira no século XXI.'
   },
   {
     id: '2',
@@ -97,8 +97,8 @@ Investir em educação política é investir no futuro da democracia.`,
     updated_at: '2024-01-10T14:30:00Z',
     views: 892,
     read_time: 6,
-    seo_title: null,
-    seo_description: null
+    seo_title: 'Educação Política: Formando Cidadãos Conscientes - Ponto de Vista',
+    seo_description: 'A importância da educação política na formação de uma sociedade mais justa e participativa.'
   }
 ];
 
