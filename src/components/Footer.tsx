@@ -169,7 +169,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-blue-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-blue-200 text-sm">
-            © 2024 Ponto de Vista por Pelizer. Todos os direitos reservados.
+            © 2024 Blog Fala Pelizer. Todos os direitos reservados.
           </p>
           <p className="text-blue-200 text-sm mt-2 md:mt-0">
             Feito com ❤️ para a educação política brasileira
