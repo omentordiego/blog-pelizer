@@ -1,5 +1,9 @@
 
-import { Article, Category } from '@/integrations/supabase/types';
+import { Tables } from '@/integrations/supabase/types';
+
+// Type aliases for better readability
+export type Article = Tables<'articles'>;
+export type Category = Tables<'categories'>;
 
 // Mock articles data
 export const mockArticles: Article[] = [
@@ -149,6 +153,3 @@ export const markdownToHtml = (markdown: string): string => {
     .replace(/\*(.*)\*/gim, '<em>$1</em>')
     .replace(/\n/gim, '<br>');
 };
-
-// Type exports for compatibility
-export type { Article, Category };

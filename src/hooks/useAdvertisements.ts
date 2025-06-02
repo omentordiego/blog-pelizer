@@ -144,25 +144,18 @@ export const useAdvertisements = () => {
 
   const trackImpression = async (advertisementId: string) => {
     try {
-      // Incrementar impressões na tabela principal usando raw SQL through RPC
-      const { error: updateError } = await supabase.rpc('increment_impressions', {
-        ad_id: advertisementId
-      });
+      // Get current impression count and increment manually
+      const { data: currentAd } = await supabase
+        .from('advertisements')
+        .select('impression_count')
+        .eq('id', advertisementId)
+        .single();
 
-      if (updateError) {
-        // Fallback: update manually
-        const { data: currentAd } = await supabase
+      if (currentAd) {
+        await supabase
           .from('advertisements')
-          .select('impression_count')
-          .eq('id', advertisementId)
-          .single();
-
-        if (currentAd) {
-          await supabase
-            .from('advertisements')
-            .update({ impression_count: (currentAd.impression_count || 0) + 1 })
-            .eq('id', advertisementId);
-        }
+          .update({ impression_count: (currentAd.impression_count || 0) + 1 })
+          .eq('id', advertisementId);
       }
 
       // Registrar na tabela de estatísticas
@@ -186,25 +179,18 @@ export const useAdvertisements = () => {
 
   const trackClick = async (advertisementId: string) => {
     try {
-      // Incrementar cliques na tabela principal usando raw SQL through RPC
-      const { error: updateError } = await supabase.rpc('increment_clicks', {
-        ad_id: advertisementId
-      });
+      // Get current click count and increment manually
+      const { data: currentAd } = await supabase
+        .from('advertisements')
+        .select('click_count')
+        .eq('id', advertisementId)
+        .single();
 
-      if (updateError) {
-        // Fallback: update manually
-        const { data: currentAd } = await supabase
+      if (currentAd) {
+        await supabase
           .from('advertisements')
-          .select('click_count')
-          .eq('id', advertisementId)
-          .single();
-
-        if (currentAd) {
-          await supabase
-            .from('advertisements')
-            .update({ click_count: (currentAd.click_count || 0) + 1 })
-            .eq('id', advertisementId);
-        }
+          .update({ click_count: (currentAd.click_count || 0) + 1 })
+          .eq('id', advertisementId);
       }
 
       // Registrar na tabela de estatísticas

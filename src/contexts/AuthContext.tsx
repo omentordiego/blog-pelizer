@@ -147,11 +147,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const refreshUser = useCallback(async () => {
     try {
-      const { data: { user: authUser, session: currentSession } } = await supabase.auth.getUser();
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
       
-      if (authUser && currentSession) {
+      if (currentSession?.user) {
         setSession(currentSession);
-        const adminUser = await fetchAdminUser(authUser.id);
+        const adminUser = await fetchAdminUser(currentSession.user.id);
         setUser(adminUser);
       } else {
         setUser(null);
