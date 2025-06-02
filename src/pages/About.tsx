@@ -10,51 +10,61 @@ const About = () => {
   const achievements = [
     {
       icon: Award,
-      title: '25+ Anos de Experiência',
-      description: 'Mais de duas décadas dedicadas ao jornalismo político e análise institucional'
+      title: '30+ Anos de Experiência',
+      description: 'Mais de três décadas dedicadas à Tecnologia da Informação e desenvolvimento regional'
     },
     {
       icon: BookOpen,
-      title: '500+ Artigos Publicados',
-      description: 'Extenso arquivo de análises e reflexões sobre política brasileira'
+      title: 'Trajetória Diversificada',
+      description: 'Do comércio local à multinacionais, do empreendedorismo à vida pública'
     },
     {
       icon: Users,
-      title: '50K+ Leitores Alcançados',
-      description: 'Comunidade engajada de cidadãos interessados em educação política'
+      title: 'Liderança Política',
+      description: 'Vice-prefeito de Uberlândia e presidente do Partido Liberal no município'
     },
     {
       icon: Target,
-      title: 'Missão Clara',
-      description: 'Promover educação política com opinião, clareza e posicionamento'
+      title: 'Compromisso com Uberlândia',
+      description: 'Promovendo educação, empreendedorismo e liberdade individual'
     }
   ];
 
   const timeline = [
     {
-      year: '1998',
-      title: 'Início na Carreira',
-      description: 'Primeiros passos no jornalismo político, cobrindo eleições municipais'
+      year: '1990s',
+      title: 'Início da Carreira',
+      description: 'Office boy no comércio local, formação técnica em informática'
     },
     {
-      year: '2005',
-      title: 'Especialização',
-      description: 'Foco em análise institucional e comportamento político brasileiro'
+      year: '2000-2017',
+      title: 'Grupo Martins',
+      description: '17 anos na maior empresa atacadista da América Latina'
     },
     {
-      year: '2010',
-      title: 'Reconhecimento',
-      description: 'Consolidação como referência em educação política'
+      year: '2010s',
+      title: 'Stefanini IT Solutions',
+      description: 'Consultor e diretor do escritório regional em Uberlândia'
     },
     {
-      year: '2018',
-      title: 'Era Digital',
-      description: 'Expansão para plataformas digitais e redes sociais'
+      year: '2013',
+      title: 'Entrada na Política',
+      description: 'Participação em movimentos sociais e ativismo político'
+    },
+    {
+      year: '2015',
+      title: 'Empreendedorismo',
+      description: 'Fundação de empresa de consultoria em tecnologia'
+    },
+    {
+      year: '2020',
+      title: 'Assessoria Política',
+      description: 'Integração à equipe do deputado estadual Cristiano Caporezzo'
     },
     {
       year: '2024',
-      title: 'Ponto de Vista',
-      description: 'Lançamento do blog dedicado à educação política cidadã'
+      title: 'Vice-prefeito',
+      description: 'Eleição como vice-prefeito de Uberlândia e presidência do PL municipal'
     }
   ];
 
@@ -67,10 +77,10 @@ const About = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl lg:text-5xl font-serif font-bold mb-6">
-              Sobre Vanderlei Pelizer
+              Sobre Vanderlei Pelizer Pereira
             </h1>
             <p className="text-xl text-blue-100 mb-8">
-              Jornalista político comprometido com a educação para a cidadania
+              Vice-prefeito de Uberlândia, especialista em TI e líder político comprometido com o desenvolvimento regional
             </p>
           </div>
         </div>
@@ -84,8 +94,8 @@ const About = () => {
             <div className="lg:col-span-1">
               <div className="relative mb-6">
                 <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"
-                  alt="Vanderlei Pelizer"
+                  src="/lovable-uploads/c26b562f-5118-47d3-a0ac-10b37ab2678a.png"
+                  alt="Vanderlei Pelizer Pereira"
                   className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
                 />
                 <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-white rounded-full p-4 shadow-lg">
@@ -97,10 +107,13 @@ const About = () => {
               
               <div className="text-center">
                 <h2 className="text-2xl font-serif font-bold text-blog-primary mb-2">
-                  Vanderlei Pelizer
+                  Vanderlei Pelizer Pereira
                 </h2>
+                <p className="text-gray-600 mb-2">
+                  Vice-prefeito de Uberlândia
+                </p>
                 <p className="text-gray-600 mb-4">
-                  Jornalista Político & Educador
+                  Presidente do PL Municipal
                 </p>
                 <div className="flex justify-center space-x-3">
                   <Button variant="ghost" size="sm">
@@ -120,33 +133,44 @@ const About = () => {
             <div className="lg:col-span-2">
               <div className="prose prose-lg max-w-none">
                 <h2 className="text-3xl font-serif font-bold text-blog-primary mb-6">
-                  Uma Vida Dedicada à Educação Política
+                  Uma Trajetória de Dedicação e Liderança
                 </h2>
                 
                 <p className="text-gray-700 leading-relaxed mb-6">
-                  Com mais de 25 anos de experiência no jornalismo político, Vanderlei Pelizer 
-                  construiu uma carreira sólida baseada na análise criteriosa das instituições 
-                  brasileiras e na promoção da educação política como ferramenta de transformação social.
+                  Vanderlei Pelizer Pereira, natural de Uberlândia (MG), é um profissional da área 
+                  de Tecnologia da Informação com mais de 30 anos de experiência. Atualmente, 
+                  ocupa o cargo de vice-prefeito de Uberlândia e preside o Partido Liberal (PL) 
+                  no município.
                 </p>
 
+                <h3 className="text-2xl font-serif font-bold text-blog-primary mb-4">
+                  Trajetória Profissional
+                </h3>
+                
                 <p className="text-gray-700 leading-relaxed mb-6">
-                  Formado em Jornalismo pela Universidade de São Paulo, com especialização em 
-                  Ciência Política, Pelizer começou sua trajetória cobrindo eleições municipais 
-                  no interior de São Paulo. Desde então, testemunhou e analisou as principais 
-                  transformações do cenário político brasileiro.
+                  Pelizer iniciou sua carreira como office boy no comércio local e, posteriormente, 
+                  formou-se em um curso técnico de informática. Trabalhou por 17 anos no Grupo Martins, 
+                  a maior empresa atacadista da América Latina, e integrou a equipe de consultores da 
+                  multinacional Stefanini IT Solutions, onde assumiu a direção do escritório regional 
+                  em Uberlândia. Em 2015, tornou-se empreendedor na área de tecnologia, prestando 
+                  consultorias na região.
                 </p>
 
+                <h3 className="text-2xl font-serif font-bold text-blog-primary mb-4">
+                  Atuação Política
+                </h3>
+                
                 <p className="text-gray-700 leading-relaxed mb-6">
-                  Sua abordagem única combina rigor jornalístico com uma linguagem acessível, 
-                  tornando temas complexos da política compreensíveis para o cidadão comum. 
-                  Acredita que a educação política é a base para uma democracia mais sólida 
-                  e participativa.
+                  Sua atuação política começou em 2013, participando de movimentos sociais. Em 2020, 
+                  foi convidado a integrar a equipe de assessores do então vereador e atual deputado 
+                  estadual Cristiano Caporezzo. Em 2024, foi indicado como candidato a vice-prefeito 
+                  de Uberlândia na chapa de Paulo Sérgio Ferreira (PP), sendo eleito para o cargo.
                 </p>
 
                 <blockquote className="border-l-4 border-blog-accent bg-blue-50 p-4 italic text-blog-primary mb-6">
-                  "A democracia só se fortalece quando os cidadãos compreendem seu papel 
-                  e participam ativamente da vida política. Este é o meu compromisso: 
-                  formar uma cidadania consciente e engajada."
+                  "Vanderlei Pelizer é reconhecido por sua dedicação ao desenvolvimento de Uberlândia, 
+                  tanto no setor tecnológico quanto no cenário político, promovendo valores como 
+                  educação, empreendedorismo e liberdade individual."
                 </blockquote>
               </div>
             </div>
@@ -163,9 +187,9 @@ const About = () => {
             </h2>
             <p className="text-lg text-gray-700 leading-relaxed mb-8">
               O "Ponto de Vista" nasceu da necessidade de criar um espaço de reflexão 
-              qualificada sobre política brasileira. Nossa missão é promover educação 
-              política através de análises profundas, sempre com opinião clara, 
-              clareza na exposição e posicionamento fundamentado.
+              qualificada sobre política brasileira e desenvolvimento regional. Nossa missão 
+              é promover educação política através de análises profundas, sempre com opinião 
+              clara, clareza na exposição e posicionamento fundamentado.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card>
@@ -180,9 +204,9 @@ const About = () => {
               <Card>
                 <CardContent className="p-6 text-center">
                   <Target className="w-12 h-12 text-blog-primary mx-auto mb-4" />
-                  <h3 className="font-semibold text-gray-900 mb-2">Clareza</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">Desenvolvimento</h3>
                   <p className="text-sm text-gray-600">
-                    Explicar temas complexos de forma acessível e compreensível
+                    Promover o crescimento tecnológico e político de Uberlândia
                   </p>
                 </CardContent>
               </Card>
@@ -228,7 +252,7 @@ const About = () => {
       <section className="py-16 bg-muted">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-serif font-bold text-center text-blog-primary mb-12">
-            Trajetória Profissional
+            Trajetória Profissional e Política
           </h2>
           <div className="max-w-4xl mx-auto">
             <div className="relative">
