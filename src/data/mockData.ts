@@ -124,12 +124,13 @@ export const mockCategories: Category[] = [
   }
 ];
 
-// Helper functions
+// Helper functions updated to handle optional/nullable properties
 export const getArticleBySlug = (articles: Article[], slug: string): Article | null => {
   return articles.find(article => article.slug === slug) || null;
 };
 
-export const getCategoryById = (categories: Category[], id: string): Category | null => {
+export const getCategoryById = (categories: Category[], id: string | null): Category | null => {
+  if (!id) return null;
   return categories.find(category => category.id === id) || null;
 };
 
