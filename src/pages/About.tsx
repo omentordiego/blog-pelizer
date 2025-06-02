@@ -186,7 +186,7 @@ const About = () => {
               Missão do Blog
             </h2>
             <p className="text-lg text-gray-700 leading-relaxed mb-8">
-              O "Ponto de Vista" nasceu da necessidade de criar um espaço de reflexão 
+              O "Fala Pelizer" nasceu da necessidade de criar um espaço de reflexão 
               qualificada sobre política brasileira e desenvolvimento regional. Nossa missão 
               é promover educação política através de análises profundas, sempre com opinião 
               clara, clareza na exposição e posicionamento fundamentado.
