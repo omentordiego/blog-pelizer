@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
 import AdDisplay from '@/components/AdDisplay';
+import DebugAds from '@/components/DebugAds';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
 
@@ -229,6 +230,9 @@ const Index = () => {
       <AdDisplay position="site_footer" className="bg-gray-50 py-4" />
 
       <Footer />
+      
+      {/* Debug component - only visible in development */}
+      {process.env.NODE_ENV === 'development' && <DebugAds />}
     </div>
   );
 };

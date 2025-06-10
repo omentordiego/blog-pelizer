@@ -11,15 +11,21 @@ export const useAdvertisements = () => {
 
   const fetchAdvertisements = async () => {
     try {
+      console.log('🔄 Buscando todos os anúncios...');
       const { data, error } = await supabase
         .from('advertisements')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao buscar anúncios:', error);
+        throw error;
+      }
+      
+      console.log('📋 Anúncios encontrados:', data?.length || 0);
       setAdvertisements((data || []) as Advertisement[]);
     } catch (error) {
-      console.error('Erro ao buscar anúncios:', error);
+      console.error('💥 Erro crítico ao buscar anúncios:', error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os anúncios",
@@ -32,6 +38,8 @@ export const useAdvertisements = () => {
 
   const getActiveAdvertisements = async (position?: AdvertisementPosition) => {
     try {
+      console.log(`🎯 Buscando anúncios ativos para posição: ${position || 'todas'}`);
+      
       let query = supabase
         .from('advertisements')
         .select('*')
@@ -42,23 +50,44 @@ export const useAdvertisements = () => {
       }
 
       const { data, error } = await query;
-      if (error) throw error;
       
-      return (data?.filter(ad => {
+      if (error) {
+        console.error('❌ Erro ao buscar anúncios ativos:', error);
+        throw error;
+      }
+      
+      console.log(`📊 Anúncios brutos encontrados: ${data?.length || 0}`);
+      
+      const filteredAds = (data?.filter(ad => {
         const now = new Date();
         const startDate = ad.start_date ? new Date(ad.start_date) : null;
         const endDate = ad.end_date ? new Date(ad.end_date) : null;
         
-        return (!startDate || startDate <= now) && (!endDate || endDate >= now);
+        const isActive = (!startDate || startDate <= now) && (!endDate || endDate >= now);
+        
+        if (!isActive) {
+          console.log(`⏰ Anúncio fora do período: ${ad.title} (${ad.start_date} - ${ad.end_date})`);
+        }
+        
+        return isActive;
       }) || []) as Advertisement[];
+      
+      console.log(`✅ Anúncios filtrados (ativos): ${filteredAds.length}`);
+      filteredAds.forEach(ad => {
+        console.log(`   • ${ad.title} (${ad.type}) - Posição: ${ad.position}`);
+      });
+      
+      return filteredAds;
     } catch (error) {
-      console.error('Erro ao buscar anúncios ativos:', error);
+      console.error('💥 Erro crítico ao buscar anúncios ativos:', error);
       return [];
     }
   };
 
   const createAdvertisement = async (advertisement: Omit<Advertisement, 'id' | 'created_at' | 'updated_at' | 'click_count' | 'impression_count'>) => {
     try {
+      console.log('➕ Criando novo anúncio:', advertisement.title);
+      
       const { data, error } = await supabase
         .from('advertisements')
         .insert([advertisement])
@@ -67,6 +96,7 @@ export const useAdvertisements = () => {
 
       if (error) throw error;
 
+      console.log('✅ Anúncio criado com sucesso:', data.id);
       setAdvertisements(prev => [data as Advertisement, ...prev]);
       toast({
         title: "Sucesso",
@@ -75,7 +105,7 @@ export const useAdvertisements = () => {
 
       return data as Advertisement;
     } catch (error) {
-      console.error('Erro ao criar anúncio:', error);
+      console.error('❌ Erro ao criar anúncio:', error);
       toast({
         title: "Erro",
         description: "Não foi possível criar o anúncio",
@@ -87,6 +117,8 @@ export const useAdvertisements = () => {
 
   const updateAdvertisement = async (id: string, updates: Partial<Advertisement>) => {
     try {
+      console.log(`📝 Atualizando anúncio: ${id}`);
+      
       const { data, error } = await supabase
         .from('advertisements')
         .update(updates)
@@ -96,6 +128,7 @@ export const useAdvertisements = () => {
 
       if (error) throw error;
 
+      console.log('✅ Anúncio atualizado com sucesso');
       setAdvertisements(prev => 
         prev.map(ad => ad.id === id ? { ...ad, ...data } as Advertisement : ad)
       );
@@ -107,7 +140,7 @@ export const useAdvertisements = () => {
 
       return data as Advertisement;
     } catch (error) {
-      console.error('Erro ao atualizar anúncio:', error);
+      console.error('❌ Erro ao atualizar anúncio:', error);
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o anúncio",
@@ -119,6 +152,8 @@ export const useAdvertisements = () => {
 
   const deleteAdvertisement = async (id: string) => {
     try {
+      console.log(`🗑️ Excluindo anúncio: ${id}`);
+      
       const { error } = await supabase
         .from('advertisements')
         .delete()
@@ -126,13 +161,14 @@ export const useAdvertisements = () => {
 
       if (error) throw error;
 
+      console.log('✅ Anúncio excluído com sucesso');
       setAdvertisements(prev => prev.filter(ad => ad.id !== id));
       toast({
         title: "Sucesso",
         description: "Anúncio excluído com sucesso",
       });
     } catch (error) {
-      console.error('Erro ao excluir anúncio:', error);
+      console.error('❌ Erro ao excluir anúncio:', error);
       toast({
         title: "Erro",
         description: "Não foi possível excluir o anúncio",
@@ -144,7 +180,9 @@ export const useAdvertisements = () => {
 
   const trackImpression = async (advertisementId: string) => {
     try {
-      // Get current impression count and increment manually
+      console.log(`📈 Rastreando impressão para anúncio: ${advertisementId}`);
+      
+      // Atualizar contador de impressões
       const { data: currentAd } = await supabase
         .from('advertisements')
         .select('impression_count')
@@ -156,30 +194,19 @@ export const useAdvertisements = () => {
           .from('advertisements')
           .update({ impression_count: (currentAd.impression_count || 0) + 1 })
           .eq('id', advertisementId);
+        
+        console.log(`✅ Impressão registrada. Novo total: ${(currentAd.impression_count || 0) + 1}`);
       }
-
-      // Registrar na tabela de estatísticas
-      const today = new Date().toISOString().split('T')[0];
-      const { error } = await supabase
-        .from('advertisement_stats')
-        .upsert({
-          advertisement_id: advertisementId,
-          date: today,
-          impressions: 1
-        }, {
-          onConflict: 'advertisement_id,date',
-          count: 'exact'
-        });
-
-      if (error) console.error('Erro ao registrar impressão:', error);
     } catch (error) {
-      console.error('Erro ao rastrear impressão:', error);
+      console.error('❌ Erro ao rastrear impressão:', error);
     }
   };
 
   const trackClick = async (advertisementId: string) => {
     try {
-      // Get current click count and increment manually
+      console.log(`🖱️ Rastreando clique para anúncio: ${advertisementId}`);
+      
+      // Atualizar contador de cliques
       const { data: currentAd } = await supabase
         .from('advertisements')
         .select('click_count')
@@ -191,24 +218,11 @@ export const useAdvertisements = () => {
           .from('advertisements')
           .update({ click_count: (currentAd.click_count || 0) + 1 })
           .eq('id', advertisementId);
+        
+        console.log(`✅ Clique registrado. Novo total: ${(currentAd.click_count || 0) + 1}`);
       }
-
-      // Registrar na tabela de estatísticas
-      const today = new Date().toISOString().split('T')[0];
-      const { error } = await supabase
-        .from('advertisement_stats')
-        .upsert({
-          advertisement_id: advertisementId,
-          date: today,
-          clicks: 1
-        }, {
-          onConflict: 'advertisement_id,date',
-          count: 'exact'
-        });
-
-      if (error) console.error('Erro ao registrar clique:', error);
     } catch (error) {
-      console.error('Erro ao rastrear clique:', error);
+      console.error('❌ Erro ao rastrear clique:', error);
     }
   };
 
