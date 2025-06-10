@@ -124,7 +124,7 @@ export const mockCategories: Category[] = [
   }
 ];
 
-// Helper functions updated to handle optional/nullable properties safely
+// Updated helper functions to properly handle Supabase types with optional properties
 export const getArticleBySlug = (articles: Article[], slug: string): Article | null => {
   return articles.find(article => article.slug === slug) || null;
 };
