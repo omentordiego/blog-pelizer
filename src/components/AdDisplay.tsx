@@ -59,15 +59,20 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ position, className = '' }) => {
         console.log(`🎯 Inicializando ${adsenseAds.length} anúncios AdSense`);
         
         try {
-          if (window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
-            // Push for each AdSense ad
-            adsenseAds.forEach(() => {
-              window.adsbygoogle.push({});
-            });
-            console.log('✅ AdSense carregado com sucesso');
-          }
+          // Aguardar um pouco para garantir que o DOM foi atualizado
+          setTimeout(() => {
+            if (window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
+              // Push for each AdSense ad
+              adsenseAds.forEach(() => {
+                window.adsbygoogle.push({});
+              });
+              console.log('✅ AdSense inicializado com sucesso');
+            } else {
+              console.warn('⚠️ window.adsbygoogle não está disponível');
+            }
+          }, 100);
         } catch (error) {
-          console.error('❌ Erro ao carregar AdSense:', error);
+          console.error('❌ Erro ao inicializar AdSense:', error);
         }
       }
     }
@@ -86,6 +91,7 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ position, className = '' }) => {
     
     return (
       <div 
+        key={ad.id}
         className="adsense-ad"
         dangerouslySetInnerHTML={{ __html: ad.content }}
       />
@@ -95,6 +101,7 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ position, className = '' }) => {
   const renderBannerAd = (ad: Advertisement) => {
     return (
       <div 
+        key={ad.id}
         className={`banner-ad transition-opacity hover:opacity-80 ${
           ad.link_url ? 'cursor-pointer' : 'cursor-default'
         }`}

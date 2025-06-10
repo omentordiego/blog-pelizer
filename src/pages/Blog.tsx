@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
+import LazyAdDisplay from '@/components/LazyAdDisplay';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
 
@@ -21,16 +22,16 @@ const Blog = () => {
   // Filter and sort articles
   const filteredArticles = articles.filter((article) => {
     const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         article.summary.toLowerCase().includes(searchTerm.toLowerCase());
+                         (article.summary || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || article.category_id === selectedCategory;
     
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
     switch (sortBy) {
       case 'date':
-        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+        return new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime();
       case 'views':
-        return b.views - a.views;
+        return (b.views || 0) - (a.views || 0);
       case 'title':
         return a.title.localeCompare(b.title);
       default:
@@ -41,6 +42,9 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
+
+      {/* Header Advertisement */}
+      <LazyAdDisplay position="header" className="bg-gray-50 py-2" />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blog-primary to-blog-secondary text-white py-16">
@@ -114,37 +118,62 @@ const Blog = () => {
       {/* Articles Grid */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          {filteredArticles.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredArticles.map((article) => (
-                <ArticleCard key={article.id} article={article} />
-              ))}
+          <div className="flex gap-8">
+            {/* Main Content */}
+            <div className="flex-1">
+              {filteredArticles.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredArticles.map((article, index) => (
+                      <div key={article.id}>
+                        <ArticleCard article={article} />
+                        {/* Advertisement between articles */}
+                        {(index + 1) % 6 === 0 && index < filteredArticles.length - 1 && (
+                          <div className="col-span-full mt-6 mb-6">
+                            <LazyAdDisplay position="between_articles" className="text-center" />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-6 h-6 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Nenhum artigo encontrado
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Tente ajustar os filtros ou termos de busca
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSelectedCategory('all');
+                      setSortBy('date');
+                    }}
+                  >
+                    Limpar filtros
+                  </Button>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-6 h-6 text-gray-400" />
+
+            {/* Sidebar - Hidden on mobile */}
+            <div className="hidden lg:block w-80">
+              <div className="sticky top-4 space-y-6">
+                <LazyAdDisplay position="sidebar" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Nenhum artigo encontrado
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Tente ajustar os filtros ou termos de busca
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedCategory('all');
-                  setSortBy('date');
-                }}
-              >
-                Limpar filtros
-              </Button>
             </div>
-          )}
+          </div>
         </div>
       </section>
+
+      {/* Site Footer Advertisement */}
+      <LazyAdDisplay position="site_footer" className="bg-gray-50 py-4" />
 
       <Footer />
     </div>

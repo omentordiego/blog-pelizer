@@ -124,12 +124,12 @@ export const mockCategories: Category[] = [
   }
 ];
 
-// Updated helper functions to properly handle Supabase types with optional properties
+// Updated helper functions to safely handle nullable properties
 export const getArticleBySlug = (articles: Article[], slug: string): Article | null => {
   return articles.find(article => article.slug === slug) || null;
 };
 
-export const getCategoryById = (categories: Category[], id: string | null): Category | null => {
+export const getCategoryById = (categories: Category[], id: string | null | undefined): Category | null => {
   if (!id) return null;
   return categories.find(category => category.id === id) || null;
 };
@@ -146,8 +146,8 @@ export const markdownToHtml = (markdown: string): string => {
   // Simple markdown to HTML conversion
   return markdown
     .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-    .replace(/^## (.*$)/gim, '<h2>$2</h2>')
-    .replace(/^### (.*$)/gim, '<h3>$3</h3>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
     .replace(/^\- (.*$)/gim, '<li>$1</li>')
     .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
     .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')

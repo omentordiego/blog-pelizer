@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
-import AdDisplay from '@/components/AdDisplay';
+import LazyAdDisplay from '@/components/LazyAdDisplay';
 import DebugAds from '@/components/DebugAds';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
@@ -36,7 +36,7 @@ const Index = () => {
       <Header />
       
       {/* Header Advertisement */}
-      <AdDisplay position="header" className="bg-gray-50 py-2" />
+      <LazyAdDisplay position="header" className="bg-gray-50 py-2" />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blog-primary to-blog-secondary text-white py-16 lg:py-24">
@@ -108,7 +108,7 @@ const Index = () => {
                     <ArticleCard article={article} featured />
                     {index === 0 && (
                       <div className="mt-8 lg:hidden">
-                        <AdDisplay position="between_articles" />
+                        <LazyAdDisplay position="between_articles" />
                       </div>
                     )}
                   </div>
@@ -117,7 +117,7 @@ const Index = () => {
               
               {/* Advertisement between featured articles */}
               <div className="my-8 hidden lg:block">
-                <AdDisplay position="between_articles" className="text-center" />
+                <LazyAdDisplay position="between_articles" className="text-center" />
               </div>
               
               {featuredArticles.length > 2 && (
@@ -159,7 +159,7 @@ const Index = () => {
                   <ArticleCard article={article} />
                   {(index + 1) % 3 === 0 && index < recentArticles.length - 1 && (
                     <div className="col-span-full mt-6 mb-6">
-                      <AdDisplay position="between_articles" className="text-center" />
+                      <LazyAdDisplay position="between_articles" className="text-center" />
                     </div>
                   )}
                 </div>
@@ -168,6 +168,11 @@ const Index = () => {
           </div>
         </section>
       )}
+
+      {/* Sidebar Advertisement (hidden on mobile) */}
+      <div className="hidden xl:block fixed top-1/2 right-4 transform -translate-y-1/2 w-64">
+        <LazyAdDisplay position="sidebar" />
+      </div>
 
       {/* Categories Preview */}
       {categories.length > 0 && (
@@ -193,7 +198,7 @@ const Index = () => {
                     {category.name}
                   </h3>
                   <p className="text-gray-600 text-sm mb-4 font-heading">
-                    {category.description}
+                    {category.description || 'Categoria sem descrição'}
                   </p>
                   <span className="text-blog-secondary text-sm font-medium font-heading">
                     Explorar categoria →
@@ -227,7 +232,7 @@ const Index = () => {
       </section>
 
       {/* Site Footer Advertisement */}
-      <AdDisplay position="site_footer" className="bg-gray-50 py-4" />
+      <LazyAdDisplay position="site_footer" className="bg-gray-50 py-4" />
 
       <Footer />
       
