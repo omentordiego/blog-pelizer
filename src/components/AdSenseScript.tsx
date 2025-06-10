@@ -6,6 +6,10 @@ const AdSenseScript: React.FC = () => {
     // Verificar se o script AdSense já foi carregado
     if (document.querySelector('script[src*="adsbygoogle.js"]')) {
       console.log('🎯 Script AdSense já está carregado');
+      // Garantir que window.adsbygoogle existe
+      if (!window.adsbygoogle) {
+        window.adsbygoogle = [];
+      }
       return;
     }
 
@@ -22,6 +26,7 @@ const AdSenseScript: React.FC = () => {
       // Inicializar window.adsbygoogle se não existir
       if (!window.adsbygoogle) {
         window.adsbygoogle = [];
+        console.log('🎯 window.adsbygoogle inicializado');
       }
     };
     
@@ -36,6 +41,7 @@ const AdSenseScript: React.FC = () => {
       const existingScript = document.querySelector('script[src*="adsbygoogle.js"]');
       if (existingScript) {
         existingScript.remove();
+        console.log('🧹 Script AdSense removido');
       }
     };
   }, []);

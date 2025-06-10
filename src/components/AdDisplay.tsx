@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Advertisement, AdvertisementPosition } from '@/types/advertisement';
 import { useAdvertisements } from '@/hooks/useAdvertisements';
 
@@ -19,7 +19,21 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ position, className = '' }) => {
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [adSenseInitialized, setAdSenseInitialized] = useState(false);
   const { getActiveAdvertisements, trackImpression, trackClick } = useAdvertisements();
+
+  const initializeAdSense = useCallback(() => {
+    try {
+      if (window.adsbygoogle && !adSenseInitialized) {
+        console.log('🎯 Inicializando AdSense para posição:', position);
+        window.adsbygoogle.push({});
+        setAdSenseInitialized(true);
+        console.log('✅ AdSense inicializado com sucesso');
+      }
+    } catch (error) {
+      console.error('❌ Erro ao inicializar AdSense:', error);
+    }
+  }, [position, adSenseInitialized]);
 
   useEffect(() => {
     const loadAds = async () => {
@@ -53,40 +67,30 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ position, className = '' }) => {
 
   // Effect for AdSense ads - runs after ads are loaded
   useEffect(() => {
-    if (ads.length > 0) {
+    if (ads.length > 0 && !loading) {
       const adsenseAds = ads.filter(ad => ad.type === 'adsense');
       if (adsenseAds.length > 0) {
         console.log(`🎯 Inicializando ${adsenseAds.length} anúncios AdSense`);
         
-        try {
-          // Aguardar um pouco para garantir que o DOM foi atualizado
-          setTimeout(() => {
-            if (window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
-              // Push for each AdSense ad
-              adsenseAds.forEach(() => {
-                window.adsbygoogle.push({});
-              });
-              console.log('✅ AdSense inicializado com sucesso');
-            } else {
-              console.warn('⚠️ window.adsbygoogle não está disponível');
-            }
-          }, 100);
-        } catch (error) {
-          console.error('❌ Erro ao inicializar AdSense:', error);
-        }
+        // Aguardar um pouco para garantir que o DOM foi atualizado
+        const timeout = setTimeout(() => {
+          initializeAdSense();
+        }, 300);
+
+        return () => clearTimeout(timeout);
       }
     }
-  }, [ads]);
+  }, [ads, loading, initializeAdSense]);
 
-  const handleAdClick = (ad: Advertisement) => {
+  const handleAdClick = useCallback((ad: Advertisement) => {
     console.log(`🖱️ Clique no anúncio: ${ad.id} - ${ad.title}`);
     trackClick(ad.id);
     if (ad.type === 'banner' && ad.link_url) {
       window.open(ad.link_url, '_blank', 'noopener,noreferrer');
     }
-  };
+  }, [trackClick]);
 
-  const renderAdSenseAd = (ad: Advertisement) => {
+  const renderAdSenseAd = useCallback((ad: Advertisement) => {
     console.log(`🎯 Renderizando AdSense: ${ad.title}`, ad.content);
     
     return (
@@ -96,9 +100,9 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ position, className = '' }) => {
         dangerouslySetInnerHTML={{ __html: ad.content }}
       />
     );
-  };
+  }, []);
 
-  const renderBannerAd = (ad: Advertisement) => {
+  const renderBannerAd = useCallback((ad: Advertisement) => {
     return (
       <div 
         key={ad.id}
@@ -126,7 +130,7 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ position, className = '' }) => {
         />
       </div>
     );
-  };
+  }, [handleAdClick]);
 
   if (loading) {
     return (
