@@ -3,6 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { Advertisement, AdvertisementPosition } from '@/types/advertisement';
 import { useAdvertisements } from '@/hooks/useAdvertisements';
 
+// Declare global AdSense interface
+declare global {
+  interface Window {
+    adsbygoogle: any[];
+  }
+}
+
 interface AdDisplayProps {
   position: AdvertisementPosition;
   className?: string;
@@ -44,6 +51,28 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ position, className = '' }) => {
     loadAds();
   }, [position, getActiveAdvertisements, trackImpression]);
 
+  // Effect for AdSense ads - runs after ads are loaded
+  useEffect(() => {
+    if (ads.length > 0) {
+      const adsenseAds = ads.filter(ad => ad.type === 'adsense');
+      if (adsenseAds.length > 0) {
+        console.log(`🎯 Inicializando ${adsenseAds.length} anúncios AdSense`);
+        
+        try {
+          if (window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
+            // Push for each AdSense ad
+            adsenseAds.forEach(() => {
+              window.adsbygoogle.push({});
+            });
+            console.log('✅ AdSense carregado com sucesso');
+          }
+        } catch (error) {
+          console.error('❌ Erro ao carregar AdSense:', error);
+        }
+      }
+    }
+  }, [ads]);
+
   const handleAdClick = (ad: Advertisement) => {
     console.log(`🖱️ Clique no anúncio: ${ad.id} - ${ad.title}`);
     trackClick(ad.id);
@@ -55,18 +84,6 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ position, className = '' }) => {
   const renderAdSenseAd = (ad: Advertisement) => {
     console.log(`🎯 Renderizando AdSense: ${ad.title}`, ad.content);
     
-    useEffect(() => {
-      try {
-        // @ts-ignore - AdSense global variable
-        if (window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
-          window.adsbygoogle.push({});
-          console.log('✅ AdSense carregado com sucesso');
-        }
-      } catch (error) {
-        console.error('❌ Erro ao carregar AdSense:', error);
-      }
-    }, []);
-
     return (
       <div 
         className="adsense-ad"
