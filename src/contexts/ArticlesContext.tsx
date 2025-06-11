@@ -2,31 +2,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
-interface Article {
-  id: string;
-  title: string;
-  slug: string;
-  summary?: string;
-  content?: string;
-  cover_image?: string;
-  author: string;
-  category_id?: string;
-  is_published: boolean;
-  published_at?: string;
-  views: number;
-  read_time?: number;
-  seo_title?: string;
-  seo_description?: string;
-  created_at: string;
-  updated_at: string;
-}
+// Use the actual Supabase types
+type Article = Tables<'articles'>;
 
 interface ArticlesContextType {
   articles: Article[];
   isLoading: boolean;
-  addArticle: (article: Omit<Article, 'id' | 'slug' | 'views' | 'created_at' | 'updated_at'>) => Promise<void>;
-  updateArticle: (id: string, article: Partial<Article>) => Promise<void>;
+  addArticle: (article: Omit<TablesInsert<'articles'>, 'id' | 'slug' | 'views' | 'created_at' | 'updated_at'>) => Promise<void>;
+  updateArticle: (id: string, article: TablesUpdate<'articles'>) => Promise<void>;
   deleteArticle: (id: string) => Promise<void>;
   refreshArticles: () => Promise<void>;
 }
@@ -92,7 +77,7 @@ export const ArticlesProvider = ({ children }: { children: React.ReactNode }) =>
     }
   };
 
-  const addArticle = async (articleData: Omit<Article, 'id' | 'slug' | 'views' | 'created_at' | 'updated_at'>) => {
+  const addArticle = async (articleData: Omit<TablesInsert<'articles'>, 'id' | 'slug' | 'views' | 'created_at' | 'updated_at'>) => {
     try {
       const slug = generateSlug(articleData.title);
       const read_time = articleData.content ? calculateReadTime(articleData.content) : 1;
@@ -132,7 +117,7 @@ export const ArticlesProvider = ({ children }: { children: React.ReactNode }) =>
     }
   };
 
-  const updateArticle = async (id: string, articleData: Partial<Article>) => {
+  const updateArticle = async (id: string, articleData: TablesUpdate<'articles'>) => {
     try {
       const updateData = { ...articleData };
       
