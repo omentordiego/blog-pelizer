@@ -124,7 +124,7 @@ export const mockCategories: Category[] = [
   }
 ];
 
-// Updated helper functions to safely handle nullable properties
+// Helper functions that properly handle optional properties
 export const getArticleBySlug = (articles: Article[], slug: string): Article | null => {
   return articles.find(article => article.slug === slug) || null;
 };
