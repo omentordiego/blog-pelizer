@@ -230,8 +230,7 @@ const Article = () => {
                     Vanderlei Pelizer
                   </h3>
                   <p className="text-gray-600 mb-3">
-                    Jornalista político com mais de 25 anos de experiência, especialista em análise institucional 
-                    e educação para cidadania. Comprometido com a formação de uma sociedade mais consciente e participativa.
+                    Vanderlei Pelizer é reconhecido por sua dedicação ao desenvolvimento de Uberlândia, tanto no setor tecnológico quanto no cenário político,
                   </p>
                   <Link to="/sobre">
                     <Button variant="outline" size="sm">
