@@ -72,18 +72,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setIsLoading(true);
 
-      // For demo purposes, check if it's the demo credentials
-      if (email === 'admin@pontovista.com' && password === 'admin123') {
-        // Get the demo admin user from the database
-        const { data, error } = await supabase
+      // Check for your specific credentials
+      if (email === 'pelizervanderlei@gmail.com' && password === '@Pelizer22') {
+        // Get or create the admin user in the database
+        let { data, error } = await supabase
           .from('admin_users')
           .select('*')
           .eq('email', email)
           .maybeSingle();
 
-        if (error || !data) {
-          console.error('Demo admin user not found:', error);
+        if (error && error.code !== 'PGRST116') {
+          console.error('Erro ao buscar admin user:', error);
           return false;
+        }
+
+        // If user doesn't exist, create it
+        if (!data) {
+          const { data: newUser, error: insertError } = await supabase
+            .from('admin_users')
+            .insert([{
+              email: 'pelizervanderlei@gmail.com',
+              name: 'Vanderlei Pelizer',
+              role: 'admin'
+            }])
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Erro ao criar admin user:', insertError);
+            return false;
+          }
+          data = newUser;
         }
 
         setUser({
@@ -97,7 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return true;
       }
 
-      // For real authentication
+      // For real authentication with Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
