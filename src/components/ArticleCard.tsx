@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Calendar, Eye, User } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Article, Category, getCategoryById } from '@/data/mockData';
+import { Article, Category } from '@/data/mockData';
 import { useCategories } from '@/contexts/CategoriesContext';
 import OptimizedImage from '@/components/OptimizedImage';
 
@@ -15,7 +15,12 @@ interface ArticleCardProps {
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, featured = false }) => {
   const { categories } = useCategories();
-  const category = article.category_id ? getCategoryById(categories, article.category_id) : null;
+  
+  // Safely find category, handling optional category_id
+  const category = article.category_id 
+    ? categories.find(c => c.id === article.category_id) || null 
+    : null;
+    
   const formattedDate = new Date(article.published_at || article.created_at).toLocaleDateString('pt-BR', {
     day: 'numeric',
     month: 'long',

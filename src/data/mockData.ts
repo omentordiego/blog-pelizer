@@ -124,7 +124,7 @@ export const mockCategories: Category[] = [
   }
 ];
 
-// Helper functions that work with actual Supabase types (with optional properties)
+// Helper functions that work properly with Supabase types
 export const getArticleBySlug = (articles: Article[], slug: string): Article | null => {
   return articles.find(article => article.slug === slug) || null;
 };
