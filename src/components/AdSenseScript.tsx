@@ -15,9 +15,9 @@ const AdSenseScript: React.FC = () => {
 
     console.log('📜 Carregando script AdSense...');
     
-    // Criar e inserir o script AdSense
+    // Criar e inserir o script AdSense com o ID real
     const script = document.createElement('script');
-    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX';
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6206525680408961';
     script.async = true;
     script.crossOrigin = 'anonymous';
     
