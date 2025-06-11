@@ -4,9 +4,12 @@ import { Link } from 'react-router-dom';
 import { Calendar, Eye, User } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Article, Category } from '@/data/mockData';
+import { Tables } from '@/integrations/supabase/types';
 import { useCategories } from '@/contexts/CategoriesContext';
 import OptimizedImage from '@/components/OptimizedImage';
+
+// Use the actual Supabase types
+type Article = Tables<'articles'>;
 
 interface ArticleCardProps {
   article: Article;
