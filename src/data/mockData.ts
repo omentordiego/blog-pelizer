@@ -1,7 +1,7 @@
 
 import { Tables } from '@/integrations/supabase/types';
 
-// Type aliases for better readability
+// Type aliases for better readability - now using actual Supabase types
 export type Article = Tables<'articles'>;
 export type Category = Tables<'categories'>;
 

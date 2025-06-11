@@ -10,6 +10,10 @@ import ArticleCard from '@/components/ArticleCard';
 import LazyAdDisplay from '@/components/LazyAdDisplay';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
+import { Tables } from '@/integrations/supabase/types';
+
+// Use the actual Supabase types
+type Article = Tables<'articles'>;
 
 const Blog = () => {
   const [searchTerm, setSearchTerm] = useState('');

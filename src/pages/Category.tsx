@@ -9,6 +9,10 @@ import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
+import { Tables } from '@/integrations/supabase/types';
+
+// Use the actual Supabase types
+type Article = Tables<'articles'>;
 
 const Category = () => {
   const { slug } = useParams<{ slug: string }>();
