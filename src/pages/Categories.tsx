@@ -6,7 +6,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { getArticlesByCategory } from '@/data/mockData';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
 
@@ -37,8 +36,8 @@ const Categories = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((category) => {
-              const categoryArticles = getArticlesByCategory(articles, category.id);
-              const totalViews = categoryArticles.reduce((sum, article) => sum + article.views, 0);
+              const categoryArticles = articles.filter(article => article.category_id === category.id);
+              const totalViews = categoryArticles.reduce((sum, article) => sum + (article.views || 0), 0);
 
               return (
                 <Link key={category.id} to={`/categorias/${category.slug}`}>
@@ -58,7 +57,7 @@ const Categories = () => {
                       </h3>
 
                       <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                        {category.description}
+                        {category.description || 'Categoria sem descrição'}
                       </p>
 
                       <div className="flex items-center justify-between text-sm text-gray-500">

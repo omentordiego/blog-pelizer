@@ -9,7 +9,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
 import LazyAdDisplay from '@/components/LazyAdDisplay';
-import { getArticleBySlug, getCategoryById, markdownToHtml } from '@/data/mockData';
+import { markdownToHtml } from '@/data/mockData';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
 
@@ -20,7 +20,7 @@ const Article = () => {
   const { articles } = useArticles();
   const { categories } = useCategories();
   
-  const article = slug ? getArticleBySlug(articles, slug) : null;
+  const article = slug ? articles.find(a => a.slug === slug) || null : null;
   
   if (!article) {
     return (
@@ -37,7 +37,7 @@ const Article = () => {
     );
   }
 
-  const category = article.category_id ? getCategoryById(categories, article.category_id) : null;
+  const category = article.category_id ? categories.find(c => c.id === article.category_id) || null : null;
   const formattedDate = new Date(article.published_at || article.created_at).toLocaleDateString('pt-BR', {
     day: 'numeric',
     month: 'long',

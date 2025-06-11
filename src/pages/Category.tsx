@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
-import { getCategoryBySlug, getArticlesByCategory } from '@/data/mockData';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
 
@@ -18,8 +17,8 @@ const Category = () => {
   const { articles } = useArticles();
   const { categories } = useCategories();
   
-  const category = slug ? getCategoryBySlug(categories, slug) : null;
-  const categoryArticles = category ? getArticlesByCategory(articles, category.id) : [];
+  const category = slug ? categories.find(c => c.slug === slug) || null : null;
+  const categoryArticles = category ? articles.filter(article => article.category_id === category.id) : [];
 
   if (!category) {
     return (
@@ -40,9 +39,9 @@ const Category = () => {
   const sortedArticles = [...categoryArticles].sort((a, b) => {
     switch (sortBy) {
       case 'date':
-        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+        return new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime();
       case 'views':
-        return b.views - a.views;
+        return (b.views || 0) - (a.views || 0);
       case 'title':
         return a.title.localeCompare(b.title);
       default:
@@ -50,7 +49,7 @@ const Category = () => {
     }
   });
 
-  const totalViews = categoryArticles.reduce((sum, article) => sum + article.views, 0);
+  const totalViews = categoryArticles.reduce((sum, article) => sum + (article.views || 0), 0);
 
   return (
     <div className="min-h-screen bg-white">
@@ -82,7 +81,7 @@ const Category = () => {
               {category.name}
             </h1>
             <p className="text-lg lg:text-xl text-blue-100 mb-6">
-              {category.description}
+              {category.description || 'Categoria sem descrição'}
             </p>
             
             <div className="flex flex-wrap gap-6 text-sm">
