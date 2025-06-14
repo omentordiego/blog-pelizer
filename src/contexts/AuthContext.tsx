@@ -25,7 +25,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   
   const { login, logout, refreshUser } = useAuthOperations({
     fetchAdminUser,
-    createOrGetAdminUser,
     setUser,
     setSession,
     setIsLoading
