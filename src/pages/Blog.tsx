@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
-import LazyAdDisplay from '@/components/LazyAdDisplay';
+import Sidebar from '@/components/Sidebar';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
 import { Tables } from '@/integrations/supabase/types';
@@ -46,9 +46,6 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-
-      {/* Header Advertisement */}
-      <LazyAdDisplay position="header" className="bg-gray-50 py-2" />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blog-primary to-blog-secondary text-white py-16">
@@ -128,16 +125,8 @@ const Blog = () => {
               {filteredArticles.length > 0 ? (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredArticles.map((article, index) => (
-                      <div key={article.id}>
-                        <ArticleCard article={article} />
-                        {/* Advertisement between articles */}
-                        {(index + 1) % 6 === 0 && index < filteredArticles.length - 1 && (
-                          <div className="col-span-full mt-6 mb-6">
-                            <LazyAdDisplay position="between_articles" className="text-center" />
-                          </div>
-                        )}
-                      </div>
+                    {filteredArticles.map((article) => (
+                      <ArticleCard key={article.id} article={article} />
                     ))}
                   </div>
                 </>
@@ -168,16 +157,11 @@ const Blog = () => {
 
             {/* Sidebar - Hidden on mobile */}
             <div className="hidden lg:block w-80">
-              <div className="sticky top-4 space-y-6">
-                <LazyAdDisplay position="sidebar" />
-              </div>
+              <Sidebar className="sticky top-4" />
             </div>
           </div>
         </div>
       </section>
-
-      {/* Site Footer Advertisement */}
-      <LazyAdDisplay position="site_footer" className="bg-gray-50 py-4" />
 
       <Footer />
     </div>

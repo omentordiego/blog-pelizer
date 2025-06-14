@@ -8,8 +8,6 @@ import { ArticlesProvider } from '@/contexts/ArticlesContext';
 import { CategoriesProvider } from '@/contexts/CategoriesContext';
 import { NewsletterProvider } from '@/contexts/NewsletterContext';
 import { AuthProvider } from '@/contexts/AuthContext';
-import AdSenseScript from '@/components/AdSenseScript';
-import ExitIntentPopup from '@/components/ExitIntentPopup';
 
 // Pages
 import Index from "./pages/Index";
@@ -37,7 +35,6 @@ const App = () => (
             <TooltipProvider>
               <Toaster />
               <Sonner />
-              <AdSenseScript />
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index />} />
@@ -55,7 +52,6 @@ const App = () => (
                   <Route path="/cookies" element={<Cookies />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-                <ExitIntentPopup />
               </BrowserRouter>
             </TooltipProvider>
           </NewsletterProvider>
