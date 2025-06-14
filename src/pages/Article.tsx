@@ -8,7 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
-import LazyAdDisplay from '@/components/LazyAdDisplay';
 import { markdownToHtml } from '@/data/mockData';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
@@ -88,9 +87,6 @@ const Article = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-
-      {/* Header Advertisement */}
-      <LazyAdDisplay position="header" className="bg-gray-50 py-2" />
 
       {/* Breadcrumb */}
       <div className="bg-muted py-4">
@@ -214,11 +210,6 @@ const Article = () => {
               dangerouslySetInnerHTML={{ __html: processedContent }}
             />
 
-            {/* Article Footer Advertisement */}
-            <div className="my-8">
-              <LazyAdDisplay position="article_footer" className="text-center" />
-            </div>
-
             {/* Author Info */}
             <div className="bg-muted rounded-lg p-6 mb-8">
               <div className="flex items-start gap-4">
@@ -284,9 +275,6 @@ const Article = () => {
           </div>
         </section>
       )}
-
-      {/* Site Footer Advertisement */}
-      <LazyAdDisplay position="site_footer" className="bg-gray-50 py-4" />
 
       <Footer />
     </div>

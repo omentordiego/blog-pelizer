@@ -1,6 +1,5 @@
 
 import React from 'react';
-import AdDisplay from './AdDisplay';
 
 interface SidebarProps {
   className?: string;
@@ -9,9 +8,6 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
   return (
     <aside className={`space-y-6 ${className}`}>
-      {/* Sidebar Advertisements */}
-      <AdDisplay position="sidebar" />
-      
       {/* Newsletter Signup Widget */}
       <div className="bg-blog-primary text-white p-6 rounded-lg">
         <h3 className="text-lg font-semibold mb-2 font-heading">Newsletter</h3>
