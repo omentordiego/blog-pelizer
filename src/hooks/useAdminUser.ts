@@ -37,7 +37,7 @@ export const useAdminUser = () => {
 
   const createOrGetAdminUser = useCallback(async (email: string): Promise<AdminUser | null> => {
     try {
-      // Get or create the admin user in the database
+      // First try to get existing admin user by email
       let { data, error } = await supabase
         .from('admin_users')
         .select('*')
@@ -49,34 +49,22 @@ export const useAdminUser = () => {
         return null;
       }
 
-      // If user doesn't exist, create it
-      if (!data) {
-        const { data: newUser, error: insertError } = await supabase
-          .from('admin_users')
-          .insert([{
-            email: 'pelizervanderlei@gmail.com',
-            name: 'Vanderlei Pelizer',
-            role: 'admin'
-          }])
-          .select()
-          .single();
-
-        if (insertError) {
-          console.error('Erro ao criar admin user:', insertError);
-          return null;
-        }
-        data = newUser;
+      // If user exists, return it
+      if (data) {
+        return {
+          id: data.id,
+          email: data.email,
+          name: data.name,
+          role: data.role || 'admin',
+          avatar: data.avatar || undefined
+        };
       }
 
-      return {
-        id: data.id,
-        email: data.email,
-        name: data.name,
-        role: data.role || 'admin',
-        avatar: data.avatar || undefined
-      };
+      // If user doesn't exist, we can't create it without proper auth user
+      console.log('Admin user não encontrado para email:', email);
+      return null;
     } catch (error) {
-      console.error('Erro ao buscar/criar admin user:', error);
+      console.error('Erro ao buscar admin user:', error);
       return null;
     }
   }, []);

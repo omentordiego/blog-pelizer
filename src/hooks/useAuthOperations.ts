@@ -6,7 +6,6 @@ import { AdminUser } from '@/types/auth';
 
 interface UseAuthOperationsProps {
   fetchAdminUser: (userId: string) => Promise<AdminUser | null>;
-  createOrGetAdminUser: (email: string) => Promise<AdminUser | null>;
   setUser: (user: AdminUser | null) => void;
   setSession: (session: any) => void;
   setIsLoading: (loading: boolean) => void;
@@ -14,7 +13,6 @@ interface UseAuthOperationsProps {
 
 export const useAuthOperations = ({
   fetchAdminUser,
-  createOrGetAdminUser,
   setUser,
   setSession,
   setIsLoading
@@ -25,17 +23,7 @@ export const useAuthOperations = ({
     try {
       setIsLoading(true);
 
-      // Check for your specific credentials
-      if (email === 'pelizervanderlei@gmail.com' && password === '@Pelizer22') {
-        const adminUser = await createOrGetAdminUser(email);
-        if (adminUser) {
-          setUser(adminUser);
-          return true;
-        }
-        return false;
-      }
-
-      // For real authentication with Supabase Auth
+      // Use Supabase Auth for authentication
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -43,6 +31,11 @@ export const useAuthOperations = ({
 
       if (error) {
         console.error('Erro no login:', error);
+        toast({
+          title: "Erro no login",
+          description: error.message,
+          variant: "destructive",
+        });
         return false;
       }
 
@@ -51,6 +44,10 @@ export const useAuthOperations = ({
         const adminUser = await fetchAdminUser(data.user.id);
         if (adminUser) {
           setUser(adminUser);
+          toast({
+            title: "Login realizado com sucesso",
+            description: `Bem-vindo, ${adminUser.name}!`,
+          });
           return true;
         } else {
           // User authenticated but not an admin
@@ -67,21 +64,30 @@ export const useAuthOperations = ({
       return false;
     } catch (error) {
       console.error('Erro no login:', error);
+      toast({
+        title: "Erro no login",
+        description: "Ocorreu um erro inesperado. Tente novamente.",
+        variant: "destructive",
+      });
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [fetchAdminUser, createOrGetAdminUser, setUser, setSession, setIsLoading, toast]);
+  }, [fetchAdminUser, setUser, setSession, setIsLoading, toast]);
 
   const logout = useCallback(async () => {
     try {
       await supabase.auth.signOut();
       setUser(null);
       setSession(null);
+      toast({
+        title: "Logout realizado",
+        description: "Você foi deslogado com sucesso.",
+      });
     } catch (error) {
       console.error('Erro no logout:', error);
     }
-  }, [setUser, setSession]);
+  }, [setUser, setSession, toast]);
 
   const refreshUser = useCallback(async () => {
     try {
