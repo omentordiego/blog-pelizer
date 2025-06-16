@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Eye, User, ArrowLeft, Share2, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import ArticleCard from '@/components/ArticleCard';
 import { markdownToHtml } from '@/data/mockData';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
+import { useViewTracking } from '@/hooks/useViewTracking';
 import { Tables } from '@/integrations/supabase/types';
 
 // Use the actual Supabase types
@@ -25,6 +25,9 @@ const Article = () => {
   
   const article = slug ? articles.find(a => a.slug === slug) || null : null;
   
+  // Track view quando o artigo for carregado
+  useViewTracking(article?.id || '', slug || '');
+
   if (!article) {
     return (
       <div className="min-h-screen bg-white">

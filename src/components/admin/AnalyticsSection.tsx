@@ -26,59 +26,76 @@ const AnalyticsSection = () => {
   useEffect(() => {
     const fetchAnalyticsData = async () => {
       try {
+        setIsLoading(true);
+        
         // Buscar total de visualizações de todos os artigos
-        const { data: articlesData, error: articlesError } = await supabase
-          .from('articles')
-          .select('views');
+        const totalViews = articles.reduce((sum, article) => sum + (article.views || 0), 0);
 
-        if (articlesError) throw articlesError;
-
-        const totalViews = articlesData?.reduce((sum, article) => sum + (article.views || 0), 0) || 0;
-
-        // Buscar dados de analytics por período
-        const today = new Date();
-        const yesterday = new Date(today);
+        // Buscar dados de analytics por período da tabela analytics_data
+        const today = new Date().toISOString().split('T')[0];
+        const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
         
-        const weekAgo = new Date(today);
+        const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
+        const weekAgoStr = weekAgo.toISOString().split('T')[0];
         
-        const monthAgo = new Date(today);
+        const monthAgo = new Date();
         monthAgo.setMonth(monthAgo.getMonth() - 1);
+        const monthAgoStr = monthAgo.toISOString().split('T')[0];
 
         // Views do dia
-        const { data: dailyData } = await supabase
+        const { data: dailyData, error: dailyError } = await supabase
           .from('analytics_data')
           .select('metric_value')
           .eq('metric_name', 'article_views')
-          .eq('date', today.toISOString().split('T')[0]);
+          .eq('date', today);
+
+        if (dailyError) {
+          console.error('Erro ao buscar dados diários:', dailyError);
+        }
 
         // Views da semana
-        const { data: weeklyData } = await supabase
+        const { data: weeklyData, error: weeklyError } = await supabase
           .from('analytics_data')
           .select('metric_value')
           .eq('metric_name', 'article_views')
-          .gte('date', weekAgo.toISOString().split('T')[0]);
+          .gte('date', weekAgoStr)
+          .lte('date', today);
+
+        if (weeklyError) {
+          console.error('Erro ao buscar dados semanais:', weeklyError);
+        }
 
         // Views do mês
-        const { data: monthlyData } = await supabase
+        const { data: monthlyData, error: monthlyError } = await supabase
           .from('analytics_data')
           .select('metric_value')
           .eq('metric_name', 'article_views')
-          .gte('date', monthAgo.toISOString().split('T')[0]);
+          .gte('date', monthAgoStr)
+          .lte('date', today);
+
+        if (monthlyError) {
+          console.error('Erro ao buscar dados mensais:', monthlyError);
+        }
+
+        const dailyViews = dailyData?.reduce((sum, item) => sum + item.metric_value, 0) || 0;
+        const weeklyViews = weeklyData?.reduce((sum, item) => sum + item.metric_value, 0) || 0;
+        const monthlyViews = monthlyData?.reduce((sum, item) => sum + item.metric_value, 0) || 0;
 
         setAnalyticsData({
           total_views: totalViews,
-          daily_views: dailyData?.reduce((sum, item) => sum + item.metric_value, 0) || 0,
-          weekly_views: weeklyData?.reduce((sum, item) => sum + item.metric_value, 0) || 0,
-          monthly_views: monthlyData?.reduce((sum, item) => sum + item.metric_value, 0) || 0
+          daily_views: dailyViews,
+          weekly_views: weeklyViews,
+          monthly_views: monthlyViews
         });
 
         console.log('Analytics carregados:', {
           total_views: totalViews,
-          daily_views: dailyData?.reduce((sum, item) => sum + item.metric_value, 0) || 0,
-          weekly_views: weeklyData?.reduce((sum, item) => sum + item.metric_value, 0) || 0,
-          monthly_views: monthlyData?.reduce((sum, item) => sum + item.metric_value, 0) || 0
+          daily_views: dailyViews,
+          weekly_views: weeklyViews,
+          monthly_views: monthlyViews
         });
 
       } catch (error) {
@@ -89,7 +106,7 @@ const AnalyticsSection = () => {
     };
 
     fetchAnalyticsData();
-  }, []);
+  }, [articles]);
 
   if (loading) {
     return (
@@ -152,6 +169,7 @@ const AnalyticsSection = () => {
           <CardContent>
             <div className="space-y-4">
               {articles
+                .filter(article => article.views && article.views > 0)
                 .sort((a, b) => (b.views || 0) - (a.views || 0))
                 .slice(0, 5)
                 .map((article, index) => (
@@ -160,11 +178,17 @@ const AnalyticsSection = () => {
                       {index + 1}
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900 text-sm font-heading">{article.title}</div>
+                      <div className="font-medium text-gray-900 text-sm font-heading line-clamp-1">{article.title}</div>
                       <div className="text-xs text-gray-500">{(article.views || 0).toLocaleString()} visualizações</div>
                     </div>
                   </div>
                 ))}
+              
+              {articles.filter(article => article.views && article.views > 0).length === 0 && (
+                <div className="text-center py-4">
+                  <p className="text-gray-500 text-sm">Nenhuma visualização registrada ainda</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
