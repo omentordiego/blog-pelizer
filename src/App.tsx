@@ -8,6 +8,8 @@ import { ArticlesProvider } from '@/contexts/ArticlesContext';
 import { CategoriesProvider } from '@/contexts/CategoriesContext';
 import { NewsletterProvider } from '@/contexts/NewsletterContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { CookieConsentProvider } from '@/contexts/CookieConsentContext';
+import CookieBanner from '@/components/CookieBanner';
 
 // Pages
 import Index from "./pages/Index";
@@ -32,28 +34,31 @@ const App = () => (
       <CategoriesProvider>
         <ArticlesProvider>
           <NewsletterProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:slug" element={<Article />} />
-                  <Route path="/artigo/:slug" element={<Article />} />
-                  <Route path="/sobre" element={<About />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/categorias" element={<Categories />} />
-                  <Route path="/categorias/:slug" element={<Category />} />
-                  <Route path="/newsletter" element={<Newsletter />} />
-                  <Route path="/privacidade" element={<Privacidade />} />
-                  <Route path="/termos" element={<Termos />} />
-                  <Route path="/cookies" element={<Cookies />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
+            <CookieConsentProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:slug" element={<Article />} />
+                    <Route path="/artigo/:slug" element={<Article />} />
+                    <Route path="/sobre" element={<About />} />
+                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/categorias" element={<Categories />} />
+                    <Route path="/categorias/:slug" element={<Category />} />
+                    <Route path="/newsletter" element={<Newsletter />} />
+                    <Route path="/privacidade" element={<Privacidade />} />
+                    <Route path="/termos" element={<Termos />} />
+                    <Route path="/cookies" element={<Cookies />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                  <CookieBanner />
+                </BrowserRouter>
+              </TooltipProvider>
+            </CookieConsentProvider>
           </NewsletterProvider>
         </ArticlesProvider>
       </CategoriesProvider>

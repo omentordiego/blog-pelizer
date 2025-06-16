@@ -2,8 +2,13 @@
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { Settings } from 'lucide-react';
+import { useCookieConsent } from '@/contexts/CookieConsentContext';
 
 const Cookies = () => {
+  const { showSettings } = useCookieConsent();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -17,6 +22,25 @@ const Cookies = () => {
           <p className="text-gray-600 mb-8">
             Última atualização: [28/05/2025]
           </p>
+
+          {/* Cookie Settings Button */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium text-gray-900">Gerencie suas Preferências de Cookies</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Você pode alterar suas configurações de cookies a qualquer momento.
+                </p>
+              </div>
+              <Button 
+                onClick={showSettings}
+                className="flex items-center gap-2 bg-blog-primary hover:bg-blog-secondary"
+              >
+                <Settings className="w-4 h-4" />
+                Configurar Cookies
+              </Button>
+            </div>
+          </div>
 
           <div className="prose max-w-none">
             <p className="text-gray-700 mb-6">
