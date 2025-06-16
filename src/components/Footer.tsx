@@ -4,12 +4,16 @@ import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useNewsletter } from '@/contexts/NewsletterContext';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { subscribe } = useNewsletter();
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
       toast({
@@ -20,12 +24,27 @@ const Footer = () => {
       return;
     }
 
-    // Simulação de inscrição na newsletter
-    toast({
-      title: "Sucesso!",
-      description: "Você foi inscrito na nossa newsletter",
-    });
-    setEmail('');
+    setIsSubmitting(true);
+    try {
+      const success = await subscribe(email, name);
+      if (success) {
+        toast({
+          title: "Sucesso!",
+          description: "Você foi inscrito na nossa newsletter",
+        });
+        setEmail('');
+        setName('');
+      }
+    } catch (error) {
+      console.error('Erro ao inscrever:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao processar sua inscrição. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const socialLinks = [
@@ -97,17 +116,35 @@ const Footer = () => {
             <p className="text-blue-100 mb-4">
               Fique por dentro das análises mais importantes sobre política brasileira
             </p>
-            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <form onSubmit={handleNewsletterSubmit} className="space-y-3 max-w-md mx-auto">
               <Input
-                type="email"
-                placeholder="Seu melhor email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-white text-gray-900"
+                type="text"
+                placeholder="Seu nome (opcional)"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="bg-white text-gray-900"
               />
-              <Button type="submit" variant="secondary" className="bg-white text-blog-secondary hover:bg-gray-100">
-                Inscrever-se
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Input
+                  type="email"
+                  placeholder="Seu melhor email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 bg-white text-gray-900"
+                  required
+                />
+                <Button 
+                  type="submit" 
+                  variant="secondary" 
+                  disabled={isSubmitting}
+                  className="bg-white text-blog-secondary hover:bg-gray-100"
+                >
+                  {isSubmitting ? 'Inscrevendo...' : 'Inscrever-se'}
+                </Button>
+              </div>
+              <p className="text-sm text-blue-200">
+                ✓ Gratuito para sempre • ✓ Sem spam • ✓ Cancele a qualquer momento
+              </p>
             </form>
           </div>
         </div>

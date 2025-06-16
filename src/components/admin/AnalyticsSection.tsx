@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useArticles } from '@/contexts/ArticlesContext';
@@ -26,7 +25,7 @@ const AnalyticsSection = () => {
   useEffect(() => {
     const fetchAnalyticsData = async () => {
       try {
-        setIsLoading(true);
+        setLoading(true);
         
         // Buscar total de visualizações de todos os artigos
         const totalViews = articles.reduce((sum, article) => sum + (article.views || 0), 0);
