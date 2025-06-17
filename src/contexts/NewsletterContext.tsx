@@ -39,7 +39,7 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
   const fetchSubscribers = async () => {
     try {
       setIsLoading(true);
-      console.log('Buscando assinantes da newsletter...');
+      console.log('Iniciando busca de assinantes da newsletter...');
       
       const { data, error } = await supabase
         .from('newsletter_subscribers')
@@ -48,23 +48,14 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
 
       if (error) {
         console.error('Erro ao buscar assinantes:', error);
-        toast({
-          title: "Erro",
-          description: "Erro ao carregar assinantes da newsletter.",
-          variant: "destructive",
-        });
+        // Não mostrar toast de erro durante carregamento inicial
         return;
       }
 
-      console.log('Assinantes carregados:', data?.length || 0);
+      console.log('Assinantes carregados com sucesso:', data?.length || 0);
       setSubscribers(data || []);
     } catch (error) {
-      console.error('Erro ao buscar assinantes:', error);
-      toast({
-        title: "Erro",
-        description: "Erro inesperado ao carregar assinantes.",
-        variant: "destructive",
-      });
+      console.error('Erro inesperado ao buscar assinantes:', error);
     } finally {
       setIsLoading(false);
     }
@@ -72,13 +63,24 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
 
   const subscribe = async (email: string, name?: string): Promise<boolean> => {
     try {
-      console.log('Tentando inscrever:', { email, name });
+      console.log('Iniciando processo de inscrição:', { email, name });
       
-      // Check if email already exists
+      if (!email || !email.trim()) {
+        toast({
+          title: "Erro",
+          description: "Email é obrigatório",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      const cleanEmail = email.trim().toLowerCase();
+      
+      // Verificar se o email já existe
       const { data: existing, error: checkError } = await supabase
         .from('newsletter_subscribers')
         .select('*')
-        .eq('email', email)
+        .eq('email', cleanEmail)
         .maybeSingle();
 
       if (checkError) {
@@ -100,17 +102,17 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
           });
           return false;
         } else {
-          // Reactivate subscription
-          console.log('Reativando inscrição para:', email);
+          // Reativar inscrição
+          console.log('Reativando inscrição para:', cleanEmail);
           const { error: updateError } = await supabase
             .from('newsletter_subscribers')
             .update({
               is_active: true,
               unsubscribed_at: null,
-              name: name || existing.name,
+              name: name?.trim() || existing.name,
               subscribed_at: new Date().toISOString()
             })
-            .eq('email', email);
+            .eq('email', cleanEmail);
 
           if (updateError) {
             console.error('Erro ao reativar inscrição:', updateError);
@@ -131,13 +133,13 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
         }
       }
 
-      // Create new subscription
-      console.log('Criando nova inscrição para:', email);
+      // Criar nova inscrição
+      console.log('Criando nova inscrição para:', cleanEmail);
       const { data: newSubscriber, error: insertError } = await supabase
         .from('newsletter_subscribers')
         .insert([{
-          email,
-          name,
+          email: cleanEmail,
+          name: name?.trim() || null,
           is_active: true,
           subscribed_at: new Date().toISOString()
         }])
@@ -200,6 +202,16 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
   const exportSubscribers = async () => {
     try {
       const activeSubscribers = subscribers.filter(sub => sub.is_active);
+      
+      if (activeSubscribers.length === 0) {
+        toast({
+          title: "Aviso",
+          description: "Não há assinantes ativos para exportar.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const csvContent = [
         ['Email', 'Nome', 'Data de Inscrição'],
         ...activeSubscribers.map(sub => [
@@ -218,6 +230,7 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Erro ao exportar assinantes:', error);
       throw error;

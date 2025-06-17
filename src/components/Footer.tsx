@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
@@ -17,7 +16,16 @@ const Footer = () => {
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !email.includes('@')) {
+    if (!email || !email.trim()) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira um email válido",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
       toast({
         title: "Erro",
         description: "Por favor, insira um email válido",
