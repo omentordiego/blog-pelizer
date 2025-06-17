@@ -12,6 +12,9 @@ const ArticleMetaTags = ({ article }: ArticleMetaTagsProps) => {
   useEffect(() => {
     if (!article) return;
 
+    console.log('Atualizando meta tags para artigo:', article.title);
+    console.log('Imagem de capa:', article.cover_image);
+
     // Atualizar título da página
     document.title = `${article.title} - Blog Fala Pelizer`;
 
@@ -31,37 +34,53 @@ const ArticleMetaTags = ({ article }: ArticleMetaTagsProps) => {
       }
       
       metaTag.setAttribute('content', content);
+      console.log(`Meta tag atualizada: ${property} = ${content}`);
     };
 
-    // Criar descrição combinando título e resumo
-    const combinedDescription = article.summary 
-      ? `${article.title} - ${article.summary}` 
-      : article.seo_description || `${article.title} - Leia este artigo no Blog Fala Pelizer`;
+    // Criar descrição otimizada para redes sociais
+    const socialDescription = article.summary 
+      ? article.summary.substring(0, 160)
+      : `${article.title} - Leia este artigo completo no Blog Fala Pelizer sobre educação política e cidadania.`;
 
     // Atualizar meta description
-    updateMetaTag('description', combinedDescription, false);
+    updateMetaTag('description', socialDescription, false);
 
-    // Atualizar Open Graph tags
+    // Atualizar Open Graph tags (Facebook, LinkedIn, etc.)
     updateMetaTag('og:title', article.title);
-    updateMetaTag('og:description', combinedDescription);
+    updateMetaTag('og:description', socialDescription);
     updateMetaTag('og:type', 'article');
     updateMetaTag('og:url', window.location.href);
+    updateMetaTag('og:site_name', 'Blog Fala Pelizer');
     
-    // Usar imagem do artigo se disponível
+    // IMPORTANTE: Usar imagem de destaque do artigo se disponível
     if (article.cover_image) {
       updateMetaTag('og:image', article.cover_image);
       updateMetaTag('og:image:alt', article.title);
       updateMetaTag('og:image:width', '1200');
       updateMetaTag('og:image:height', '630');
+      updateMetaTag('og:image:type', 'image/jpeg');
+      console.log('Imagem do artigo definida para Open Graph:', article.cover_image);
+    } else {
+      // Fallback para imagem padrão
+      updateMetaTag('og:image', 'https://i.postimg.cc/mgpyvymp/PONTO-DE-VISTA-3.png');
+      updateMetaTag('og:image:alt', 'Blog Fala Pelizer');
+      console.log('Usando imagem padrão para Open Graph');
     }
 
-    // Atualizar Twitter tags
+    // Atualizar Twitter Cards (X/Twitter)
+    updateMetaTag('twitter:card', 'summary_large_image');
+    updateMetaTag('twitter:site', '@vpelizerpereira');
+    updateMetaTag('twitter:creator', '@vpelizerpereira');
     updateMetaTag('twitter:title', article.title);
-    updateMetaTag('twitter:description', combinedDescription);
+    updateMetaTag('twitter:description', socialDescription);
     
     if (article.cover_image) {
       updateMetaTag('twitter:image', article.cover_image);
-      updateMetaTag('twitter:card', 'summary_large_image');
+      updateMetaTag('twitter:image:alt', article.title);
+      console.log('Imagem do artigo definida para Twitter Card:', article.cover_image);
+    } else {
+      updateMetaTag('twitter:image', 'https://i.postimg.cc/mgpyvymp/PONTO-DE-VISTA-3.png');
+      updateMetaTag('twitter:image:alt', 'Blog Fala Pelizer');
     }
 
     // Adicionar dados estruturados para melhor SEO
@@ -69,15 +88,27 @@ const ArticleMetaTags = ({ article }: ArticleMetaTagsProps) => {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
       "headline": article.title,
-      "description": combinedDescription,
+      "description": socialDescription,
+      "image": article.cover_image || "https://i.postimg.cc/mgpyvymp/PONTO-DE-VISTA-3.png",
       "author": {
         "@type": "Person",
-        "name": article.author
+        "name": article.author || "Vanderlei Pelizer"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Blog Fala Pelizer",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://i.postimg.cc/BZF3Sqj1/PL.png"
+        }
       },
       "datePublished": article.published_at || article.created_at,
       "dateModified": article.updated_at,
-      "image": article.cover_image,
-      "url": window.location.href
+      "url": window.location.href,
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": window.location.href
+      }
     };
 
     // Remover script anterior se existir
@@ -100,6 +131,8 @@ const ArticleMetaTags = ({ article }: ArticleMetaTagsProps) => {
       document.head.appendChild(canonical);
     }
     canonical.setAttribute('href', window.location.href);
+
+    console.log('Meta tags atualizadas com sucesso para redes sociais');
 
     // Cleanup function para restaurar valores padrão quando o componente for desmontado
     return () => {
