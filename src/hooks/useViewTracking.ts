@@ -49,24 +49,19 @@ export const useViewTracking = (articleId: string, slug: string) => {
 
             console.log('Views do artigo atualizadas com sucesso');
 
-            // Tentar registrar no analytics_data para tracking histórico
-            try {
-              const { error: analyticsError } = await supabase
-                .from('analytics_data')
-                .insert({
-                  metric_name: 'article_views',
-                  metric_value: 1,
-                  date: new Date().toISOString().split('T')[0]
-                });
+            // Registrar no analytics_data para tracking histórico
+            const { error: analyticsError } = await supabase
+              .from('analytics_data')
+              .insert({
+                metric_name: 'article_views',
+                metric_value: 1,
+                date: new Date().toISOString().split('T')[0]
+              });
 
-              if (analyticsError) {
-                console.warn('Aviso ao registrar analytics (continuando mesmo assim):', analyticsError.message);
-                // Não retornar aqui - continuar mesmo se analytics falhar
-              } else {
-                console.log('Analytics registrado com sucesso');
-              }
-            } catch (analyticsErr) {
-              console.warn('Erro inesperado no analytics, mas continuando:', analyticsErr);
+            if (analyticsError) {
+              console.error('Erro ao registrar analytics:', analyticsError);
+            } else {
+              console.log('Analytics registrado com sucesso');
             }
 
             // Marcar como visualizado nesta sessão
