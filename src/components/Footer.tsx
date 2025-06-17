@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
@@ -15,28 +16,28 @@ const Footer = () => {
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
+    
+    if (!email || !email.includes('@')) {
       toast({
         title: "Erro",
-        description: "Por favor, insira seu email",
+        description: "Por favor, insira um email válido",
         variant: "destructive",
       });
       return;
     }
 
     setIsSubmitting(true);
+    console.log('Enviando formulário de newsletter:', { email, name });
+    
     try {
-      const success = await subscribe(email, name);
+      const success = await subscribe(email.trim(), name.trim() || undefined);
       if (success) {
-        toast({
-          title: "Sucesso!",
-          description: "Você foi inscrito na nossa newsletter",
-        });
         setEmail('');
         setName('');
+        console.log('Newsletter inscrita com sucesso!');
       }
     } catch (error) {
-      console.error('Erro ao inscrever:', error);
+      console.error('Erro ao processar inscrição:', error);
       toast({
         title: "Erro",
         description: "Erro ao processar sua inscrição. Tente novamente.",
@@ -123,6 +124,7 @@ const Footer = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="bg-white text-gray-900"
+                disabled={isSubmitting}
               />
               <div className="flex flex-col sm:flex-row gap-3">
                 <Input
@@ -132,12 +134,13 @@ const Footer = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   className="flex-1 bg-white text-gray-900"
                   required
+                  disabled={isSubmitting}
                 />
                 <Button 
                   type="submit" 
                   variant="secondary" 
                   disabled={isSubmitting}
-                  className="bg-white text-blog-secondary hover:bg-gray-100"
+                  className="bg-white text-blog-secondary hover:bg-gray-100 disabled:opacity-50"
                 >
                   {isSubmitting ? 'Inscrevendo...' : 'Inscrever-se'}
                 </Button>

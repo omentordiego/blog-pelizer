@@ -39,6 +39,8 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
   const fetchSubscribers = async () => {
     try {
       setIsLoading(true);
+      console.log('Buscando assinantes da newsletter...');
+      
       const { data, error } = await supabase
         .from('newsletter_subscribers')
         .select('*')
@@ -46,12 +48,23 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
 
       if (error) {
         console.error('Erro ao buscar assinantes:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao carregar assinantes da newsletter.",
+          variant: "destructive",
+        });
         return;
       }
 
+      console.log('Assinantes carregados:', data?.length || 0);
       setSubscribers(data || []);
     } catch (error) {
       console.error('Erro ao buscar assinantes:', error);
+      toast({
+        title: "Erro",
+        description: "Erro inesperado ao carregar assinantes.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -59,12 +72,24 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
 
   const subscribe = async (email: string, name?: string): Promise<boolean> => {
     try {
+      console.log('Tentando inscrever:', { email, name });
+      
       // Check if email already exists
-      const { data: existing } = await supabase
+      const { data: existing, error: checkError } = await supabase
         .from('newsletter_subscribers')
         .select('*')
         .eq('email', email)
-        .single();
+        .maybeSingle();
+
+      if (checkError) {
+        console.error('Erro ao verificar email existente:', checkError);
+        toast({
+          title: "Erro",
+          description: "Erro ao verificar email. Tente novamente.",
+          variant: "destructive",
+        });
+        return false;
+      }
 
       if (existing) {
         if (existing.is_active) {
@@ -76,51 +101,81 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
           return false;
         } else {
           // Reactivate subscription
-          const { error } = await supabase
+          console.log('Reativando inscrição para:', email);
+          const { error: updateError } = await supabase
             .from('newsletter_subscribers')
             .update({
               is_active: true,
               unsubscribed_at: null,
-              name: name || existing.name
+              name: name || existing.name,
+              subscribed_at: new Date().toISOString()
             })
             .eq('email', email);
 
-          if (error) {
-            console.error('Erro ao reativar inscrição:', error);
+          if (updateError) {
+            console.error('Erro ao reativar inscrição:', updateError);
+            toast({
+              title: "Erro",
+              description: "Erro ao reativar inscrição. Tente novamente.",
+              variant: "destructive",
+            });
             return false;
           }
 
           await fetchSubscribers();
+          toast({
+            title: "Sucesso!",
+            description: "Sua inscrição foi reativada com sucesso!",
+          });
           return true;
         }
       }
 
       // Create new subscription
-      const { data, error } = await supabase
+      console.log('Criando nova inscrição para:', email);
+      const { data: newSubscriber, error: insertError } = await supabase
         .from('newsletter_subscribers')
         .insert([{
           email,
           name,
-          is_active: true
+          is_active: true,
+          subscribed_at: new Date().toISOString()
         }])
         .select()
         .single();
 
-      if (error) {
-        console.error('Erro ao inscrever:', error);
+      if (insertError) {
+        console.error('Erro ao criar inscrição:', insertError);
+        toast({
+          title: "Erro",
+          description: "Erro ao processar inscrição. Tente novamente.",
+          variant: "destructive",
+        });
         return false;
       }
 
-      setSubscribers(prev => [data, ...prev]);
+      console.log('Inscrição criada com sucesso:', newSubscriber);
+      setSubscribers(prev => [newSubscriber, ...prev]);
+      
+      toast({
+        title: "Sucesso!",
+        description: "Você foi inscrito na nossa newsletter!",
+      });
       return true;
     } catch (error) {
-      console.error('Erro ao inscrever:', error);
+      console.error('Erro inesperado ao inscrever:', error);
+      toast({
+        title: "Erro",
+        description: "Erro inesperado. Tente novamente.",
+        variant: "destructive",
+      });
       return false;
     }
   };
 
   const unsubscribe = async (email: string) => {
     try {
+      console.log('Cancelando inscrição para:', email);
       const { error } = await supabase
         .from('newsletter_subscribers')
         .update({
@@ -135,6 +190,7 @@ export const NewsletterProvider = ({ children }: { children: React.ReactNode }) 
       }
 
       await fetchSubscribers();
+      console.log('Inscrição cancelada com sucesso para:', email);
     } catch (error) {
       console.error('Erro ao cancelar inscrição:', error);
       throw error;

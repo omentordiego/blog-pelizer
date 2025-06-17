@@ -1,14 +1,18 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, TrendingUp, Mail, Trash2 } from 'lucide-react';
+import { Users, TrendingUp, Mail, Trash2, RefreshCw } from 'lucide-react';
 import { useNewsletter } from '@/contexts/NewsletterContext';
 import { useToast } from '@/hooks/use-toast';
 
 const NewsletterManagement = () => {
-  const { subscribers, exportSubscribers, unsubscribe, isLoading } = useNewsletter();
+  const { subscribers, exportSubscribers, unsubscribe, isLoading, refreshSubscribers } = useNewsletter();
   const { toast } = useToast();
+
+  useEffect(() => {
+    console.log('NewsletterManagement montado, total de assinantes:', subscribers.length);
+  }, [subscribers]);
 
   const handleExport = async () => {
     try {
@@ -22,6 +26,23 @@ const NewsletterManagement = () => {
       toast({
         title: "Erro",
         description: "Não foi possível exportar a lista.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      await refreshSubscribers();
+      toast({
+        title: "Sucesso",
+        description: "Lista de assinantes atualizada!",
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar a lista.",
         variant: "destructive",
       });
     }
@@ -71,13 +92,23 @@ const NewsletterManagement = () => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Gerenciar Newsletter</CardTitle>
-          <Button 
-            onClick={handleExport}
-            className="bg-blog-primary hover:bg-blog-secondary"
-            disabled={activeSubscribers.length === 0}
-          >
-            Exportar Lista
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleRefresh}
+              variant="outline"
+              size="sm"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Atualizar
+            </Button>
+            <Button 
+              onClick={handleExport}
+              className="bg-blog-primary hover:bg-blog-secondary"
+              disabled={activeSubscribers.length === 0}
+            >
+              Exportar Lista
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -106,6 +137,11 @@ const NewsletterManagement = () => {
             </Card>
           </div>
 
+          {/* Debug info */}
+          <div className="text-xs text-gray-500 mb-4">
+            Debug: {subscribers.length} total, {activeSubscribers.length} ativos
+          </div>
+
           <div className="border border-gray-200 rounded-lg">
             <div className="p-4 border-b border-gray-200 bg-gray-50">
               <h4 className="font-semibold text-gray-900">Inscritos Recentes</h4>
@@ -114,6 +150,8 @@ const NewsletterManagement = () => {
               {activeSubscribers.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   Nenhum assinante encontrado.
+                  <br />
+                  <small className="text-xs">Se você acabou de adicionar assinantes, clique em "Atualizar"</small>
                 </div>
               ) : (
                 activeSubscribers.slice(0, 10).map((subscriber) => (
@@ -139,6 +177,12 @@ const NewsletterManagement = () => {
                 ))
               )}
             </div>
+            
+            {activeSubscribers.length > 10 && (
+              <div className="p-4 bg-gray-50 text-center text-sm text-gray-600">
+                Mostrando 10 de {activeSubscribers.length} assinantes ativos
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

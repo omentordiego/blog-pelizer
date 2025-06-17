@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Eye, User, ArrowLeft, Share2, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
@@ -7,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
+import ArticleMetaTags from '@/components/ArticleMetaTags';
 import { markdownToHtml } from '@/data/mockData';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
@@ -27,6 +29,10 @@ const Article = () => {
   
   // Track view quando o artigo for carregado
   useViewTracking(article?.id || '', slug || '');
+
+  console.log('Article component - Artigo encontrado:', article?.title);
+  console.log('Article component - ID do artigo:', article?.id);
+  console.log('Article component - Slug:', slug);
 
   if (!article) {
     return (
@@ -89,6 +95,7 @@ const Article = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <ArticleMetaTags article={article} />
       <Header />
 
       {/* Breadcrumb */}
