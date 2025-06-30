@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Eye, User, ArrowLeft, Share2, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
@@ -14,6 +13,7 @@ import { useArticles } from '@/contexts/ArticlesContext';
 import { useCategories } from '@/contexts/CategoriesContext';
 import { useViewTracking } from '@/hooks/useViewTracking';
 import { Tables } from '@/integrations/supabase/types';
+import SocialMetaDebugger from '@/components/SocialMetaDebugger';
 
 // Use the actual Supabase types
 type Article = Tables<'articles'>;
@@ -287,6 +287,9 @@ const Article = () => {
       )}
 
       <Footer />
+      
+      {/* Debug component - só aparece em desenvolvimento */}
+      {process.env.NODE_ENV === 'development' && <SocialMetaDebugger />}
     </div>
   );
 };
