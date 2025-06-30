@@ -15,9 +15,14 @@ export interface SocialMetaDebugInfo {
   ogTags: MetaTagInfo[];
   twitterTags: MetaTagInfo[];
   structuredData: any;
+  imageValidation: {
+    url: string;
+    isValid: boolean;
+    error?: string;
+  };
 }
 
-export const debugSocialMetaTags = (): SocialMetaDebugInfo => {
+export const debugSocialMetaTags = async (): Promise<SocialMetaDebugInfo> => {
   const getMetaContent = (selector: string): string => {
     const element = document.querySelector(selector) as HTMLMetaElement;
     return element ? element.content : '';
@@ -64,50 +69,69 @@ export const debugSocialMetaTags = (): SocialMetaDebugInfo => {
     }
   }
 
+  const imageUrl = getMetaContent('meta[property="og:image"]');
+  const imageValidation = await validateImageUrl(imageUrl);
+
   return {
     title: document.title,
     description: getMetaContent('meta[name="description"]'),
-    image: getMetaContent('meta[property="og:image"]'),
+    image: imageUrl,
     url: window.location.href,
     ogTags,
     twitterTags,
-    structuredData
+    structuredData,
+    imageValidation
   };
 };
 
-// Função para validar URLs de imagem
-export const validateImageUrl = async (url: string): Promise<boolean> => {
+// Função melhorada para validar URLs de imagem
+export const validateImageUrl = async (url: string): Promise<{url: string; isValid: boolean; error?: string}> => {
+  if (!url) {
+    return { url: '', isValid: false, error: 'URL não fornecida' };
+  }
+
   return new Promise((resolve) => {
     const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = url;
+    const timeout = setTimeout(() => {
+      resolve({ url, isValid: false, error: 'Timeout - imagem demorou muito para carregar' });
+    }, 10000);
+
+    img.onload = () => {
+      clearTimeout(timeout);
+      resolve({ url, isValid: true });
+    };
     
-    // Timeout após 5 segundos
-    setTimeout(() => resolve(false), 5000);
+    img.onerror = () => {
+      clearTimeout(timeout);
+      resolve({ url, isValid: false, error: 'Erro ao carregar imagem' });
+    };
+    
+    img.src = url;
   });
 };
 
-// Função para gerar relatório de debug
+// Função para gerar relatório detalhado
 export const generateDebugReport = async (): Promise<string> => {
-  const debug = debugSocialMetaTags();
-  const imageValid = await validateImageUrl(debug.image);
+  const debug = await debugSocialMetaTags();
   
   let report = `
-=== RELATÓRIO DE DEBUG - META TAGS SOCIAIS ===
+=== 🔍 RELATÓRIO DE DEBUG - META TAGS SOCIAIS ===
 
 📄 Informações Básicas:
 - Título: ${debug.title}
 - Descrição: ${debug.description}
 - URL: ${debug.url}
 - Imagem: ${debug.image}
-- Imagem válida: ${imageValid ? '✅ Sim' : '❌ Não'}
+- Imagem válida: ${debug.imageValidation.isValid ? '✅ Sim' : '❌ Não'}
+${debug.imageValidation.error ? `- Erro da imagem: ${debug.imageValidation.error}` : ''}
 
 🔵 Open Graph Tags (Facebook, WhatsApp, LinkedIn):
 `;
 
   debug.ogTags.forEach(tag => {
-    report += `- ${tag.name}: ${tag.found ? '✅' : '❌'} "${tag.content}"\n`;
+    const status = tag.found ? '✅' : '❌';
+    const content = tag.content ? `"${tag.content}"` : '(vazio)';
+    report += `- ${tag.name}: ${status} ${content}\n`;
   });
 
   report += `
@@ -115,7 +139,9 @@ export const generateDebugReport = async (): Promise<string> => {
 `;
 
   debug.twitterTags.forEach(tag => {
-    report += `- ${tag.name}: ${tag.found ? '✅' : '❌'} "${tag.content}"\n`;
+    const status = tag.found ? '✅' : '❌';
+    const content = tag.content ? `"${tag.content}"` : '(vazio)';
+    report += `- ${tag.name}: ${status} ${content}\n`;
   });
 
   report += `
@@ -125,37 +151,75 @@ ${debug.structuredData ? '✅ Presentes' : '❌ Ausentes'}
 
   if (debug.structuredData) {
     report += `
-- Tipo: ${debug.structuredData['@type']}
-- Título: ${debug.structuredData.headline}
-- Autor: ${debug.structuredData.author?.name}
+- Tipo: ${debug.structuredData['@type'] || 'Não especificado'}
+- Título: ${debug.structuredData.headline || 'Não especificado'}
+- Autor: ${debug.structuredData.author?.name || 'Não especificado'}
 `;
   }
 
   report += `
-🔗 URLs para Teste:
+🔗 URLs para Teste e Validação:
 - Facebook Debugger: https://developers.facebook.com/tools/debug/?q=${encodeURIComponent(debug.url)}
 - Twitter Card Validator: https://cards-dev.twitter.com/validator
 - LinkedIn Post Inspector: https://www.linkedin.com/post-inspector/
+- WhatsApp Business API: https://developers.facebook.com/tools/debug/
 
-📝 Recomendações:
-${!imageValid ? '⚠️  Imagem não está acessível - verifique a URL\n' : ''}
-${!debug.ogTags.find(t => t.name === 'og:image:width')?.found ? '⚠️  Considere adicionar og:image:width\n' : ''}
-${!debug.ogTags.find(t => t.name === 'og:image:height')?.found ? '⚠️  Considere adicionar og:image:height\n' : ''}
-${debug.description.length > 160 ? '⚠️  Descrição muito longa para algumas redes sociais\n' : ''}
-${debug.description.length < 50 ? '⚠️  Descrição muito curta - considere expandir\n' : ''}
+📱 Específico para WhatsApp:
+- Cache muito agressivo - pode levar até 7 dias para atualizar
+- Usa principalmente og:title, og:description e og:image
+- Requer imagens com pelo menos 300x157px (recomendado: 1200x630px)
+
+📝 Recomendações e Alertas:
+`;
+
+  // Alertas específicos
+  if (!debug.imageValidation.isValid) {
+    report += '⚠️  CRÍTICO: Imagem não está acessível - isto impedirá o compartilhamento correto\n';
+  }
+  
+  if (!debug.ogTags.find(t => t.name === 'og:image:width')?.found) {
+    report += '⚠️  Considere adicionar og:image:width para melhor compatibilidade\n';
+  }
+  
+  if (!debug.ogTags.find(t => t.name === 'og:image:height')?.found) {
+    report += '⚠️  Considere adicionar og:image:height para melhor compatibilidade\n';
+  }
+  
+  if (debug.description.length > 160) {
+    report += '⚠️  Descrição muito longa para algumas redes sociais (máx. 160 caracteres)\n';
+  }
+  
+  if (debug.description.length < 50) {
+    report += '⚠️  Descrição muito curta - considere expandir (mín. 50 caracteres)\n';
+  }
+
+  if (!debug.ogTags.find(t => t.name === 'og:type')?.found) {
+    report += '⚠️  Adicione og:type para melhor categorização\n';
+  }
+
+  report += `
+🚀 Dicas para Forçar Atualização no WhatsApp:
+1. Use o Facebook Debugger para limpar o cache
+2. Adicione parâmetros à URL (?v=timestamp)
+3. Aguarde até 7 dias para atualização natural
+4. Teste com diferentes números de telefone
+
+⏰ Timestamp desta análise: ${new Date().toLocaleString('pt-BR')}
 `;
 
   return report;
 };
 
-// Função para usar no console do navegador
+// Função para debug no console
 export const debugToConsole = async () => {
+  console.log('🔍 Iniciando debug das meta tags...');
   const report = await generateDebugReport();
   console.log(report);
   return debugSocialMetaTags();
 };
 
-// Disponibilizar globalmente para debug
+// Disponibilizar globalmente
 if (typeof window !== 'undefined') {
   (window as any).debugSocialMeta = debugToConsole;
+  console.log('🛠️ Debug disponível globalmente: window.debugSocialMeta()');
 }

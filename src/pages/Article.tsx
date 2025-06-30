@@ -288,8 +288,8 @@ const Article = () => {
 
       <Footer />
       
-      {/* Debug component - só aparece em desenvolvimento */}
-      {process.env.NODE_ENV === 'development' && <SocialMetaDebugger />}
+      {/* Debug component - agora visível em todos os ambientes para testes */}
+      <SocialMetaDebugger />
     </div>
   );
 };

@@ -12,28 +12,32 @@ const ArticleMetaTags = ({ article }: ArticleMetaTagsProps) => {
   useEffect(() => {
     if (!article) return;
 
-    console.log('ArticleMetaTags: Atualizando meta tags para artigo:', article.title);
-    console.log('ArticleMetaTags: Imagem de capa:', article.cover_image);
+    console.log('🚀 ArticleMetaTags: Iniciando atualização para:', article.title);
 
-    // Função para validar se imagem existe e é acessível
-    const validateImage = (url: string): Promise<boolean> => {
+    // Função melhorada para validar imagens
+    const validateImage = async (url: string): Promise<boolean> => {
       return new Promise((resolve) => {
         const img = new Image();
+        const timeout = setTimeout(() => {
+          console.log('⏰ Timeout na validação da imagem:', url);
+          resolve(false);
+        }, 5000);
+
         img.onload = () => {
-          console.log('Imagem validada com sucesso:', url);
+          clearTimeout(timeout);
+          console.log('✅ Imagem validada:', url);
           resolve(true);
         };
+        
         img.onerror = () => {
-          console.log('Imagem não pôde ser carregada:', url);
+          clearTimeout(timeout);
+          console.log('❌ Erro ao carregar imagem:', url);
           resolve(false);
         };
-        img.src = url;
         
-        // Timeout após 3 segundos
-        setTimeout(() => {
-          console.log('Timeout na validação da imagem:', url);
-          resolve(false);
-        }, 3000);
+        // Adicionar cache busting para forçar revalidação
+        const cacheBuster = `?v=${Date.now()}`;
+        img.src = url.includes('?') ? `${url}&t=${Date.now()}` : `${url}${cacheBuster}`;
       });
     };
 
@@ -53,45 +57,71 @@ const ArticleMetaTags = ({ article }: ArticleMetaTagsProps) => {
       }
       
       metaTag.setAttribute('content', content);
-      console.log(`Meta tag atualizada: ${property} = "${content}"`);
+      console.log(`📝 Meta tag atualizada: ${property} = "${content.substring(0, 50)}..."`);
     };
 
-    // Função principal para atualizar todas as tags
+    // Função para forçar atualização de cache
+    const bustCache = () => {
+      // Adicionar timestamp para forçar revalidação
+      const timestamp = Date.now();
+      
+      // Atualizar URL com timestamp
+      const url = new URL(window.location.href);
+      url.searchParams.set('_t', timestamp.toString());
+      history.replaceState({}, '', url.toString());
+      
+      // Tentar invalidar cache do navegador
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(registration => {
+            registration.update();
+          });
+        });
+      }
+    };
+
+    // Função principal para atualizar todas as meta tags
     const updateAllMetaTags = async () => {
+      console.log('🔄 Iniciando atualização completa das meta tags...');
+      
       // Atualizar título da página
       const pageTitle = `${article.title} - Blog Fala Pelizer`;
       document.title = pageTitle;
-      console.log('Título da página atualizado:', pageTitle);
+      console.log('📄 Título da página:', pageTitle);
 
-      // Criar descrição otimizada
-      const socialDescription = article.summary 
-        ? article.summary.length > 160 
+      // Criar descrição otimizada para redes sociais
+      let socialDescription = '';
+      if (article.summary) {
+        socialDescription = article.summary.length > 160 
           ? article.summary.substring(0, 157) + '...'
-          : article.summary
-        : `${article.title} - Leia este artigo completo no Blog Fala Pelizer sobre educação política e cidadania.`;
+          : article.summary;
+      } else {
+        socialDescription = `${article.title} - Leia este artigo completo no Blog Fala Pelizer sobre educação política e cidadania.`;
+      }
+      
+      console.log('📝 Descrição social:', socialDescription);
 
-      // Determinar a melhor imagem
-      let finalImage = 'https://i.postimg.cc/mgpyvymp/PONTO-DE-VISTA-3.png'; // Fallback padrão
+      // Determinar a melhor imagem com validação melhorada
+      let finalImage = 'https://i.postimg.cc/mgpyvymp/PONTO-DE-VISTA-3.png'; // Fallback
       
       if (article.cover_image) {
-        console.log('Validando imagem do artigo...');
+        console.log('🖼️ Validando imagem do artigo:', article.cover_image);
         const isValidImage = await validateImage(article.cover_image);
         if (isValidImage) {
           finalImage = article.cover_image;
-          console.log('Usando imagem do artigo:', finalImage);
+          console.log('✅ Usando imagem do artigo');
         } else {
-          console.log('Imagem do artigo inválida, usando fallback padrão');
+          console.log('❌ Imagem inválida, usando fallback');
         }
-      } else {
-        console.log('Artigo sem imagem de capa, usando fallback padrão');
       }
 
       const currentUrl = window.location.href;
+      console.log('🔗 URL atual:', currentUrl);
 
       // Atualizar meta description
       updateMetaTag('description', socialDescription, false);
 
-      // Atualizar Open Graph tags (Facebook, WhatsApp, LinkedIn, etc.)
+      // Atualizar Open Graph tags (Facebook, WhatsApp, LinkedIn)
       updateMetaTag('og:title', article.title);
       updateMetaTag('og:description', socialDescription);
       updateMetaTag('og:type', 'article');
@@ -113,7 +143,7 @@ const ArticleMetaTags = ({ article }: ArticleMetaTagsProps) => {
       updateMetaTag('twitter:image', finalImage);
       updateMetaTag('twitter:image:alt', article.title);
 
-      // Adicionar dados estruturados (JSON-LD)
+      // Atualizar dados estruturados (JSON-LD)
       const structuredData = {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
@@ -127,17 +157,14 @@ const ArticleMetaTags = ({ article }: ArticleMetaTagsProps) => {
         },
         "author": {
           "@type": "Person",
-          "name": article.author || "Vanderlei Pelizer",
-          "url": "https://your-domain.com/sobre"
+          "name": article.author || "Vanderlei Pelizer"
         },
         "publisher": {
           "@type": "Organization",
           "name": "Blog Fala Pelizer",
           "logo": {
             "@type": "ImageObject",
-            "url": "https://i.postimg.cc/BZF3Sqj1/PL.png",
-            "width": 60,
-            "height": 60
+            "url": "https://i.postimg.cc/BZF3Sqj1/PL.png"
           }
         },
         "datePublished": article.published_at || article.created_at,
@@ -146,18 +173,16 @@ const ArticleMetaTags = ({ article }: ArticleMetaTagsProps) => {
         "mainEntityOfPage": {
           "@type": "WebPage",
           "@id": currentUrl
-        },
-        "articleSection": "Política",
-        "wordCount": article.content ? article.content.length : 0
+        }
       };
 
-      // Remover script JSON-LD anterior se existir
+      // Remover script JSON-LD anterior
       const existingScript = document.querySelector('script[type="application/ld+json"]');
       if (existingScript) {
         existingScript.remove();
       }
 
-      // Adicionar novo script com dados estruturados
+      // Adicionar novo script
       const script = document.createElement('script');
       script.type = 'application/ld+json';
       script.textContent = JSON.stringify(structuredData);
@@ -172,46 +197,29 @@ const ArticleMetaTags = ({ article }: ArticleMetaTagsProps) => {
       }
       canonical.setAttribute('href', currentUrl);
 
-      console.log('Todas as meta tags foram atualizadas com sucesso!');
-      console.log('Imagem final usada:', finalImage);
-      console.log('URL canonical:', currentUrl);
+      // Forçar atualização de cache
+      bustCache();
+
+      console.log('🎉 Meta tags atualizadas com sucesso!');
+      console.log('🖼️ Imagem final:', finalImage);
       
-      // Forçar atualização do cache do navegador
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          registrations.forEach(registration => {
-            registration.update();
-          });
-        });
-      }
+      // Log final para debug
+      console.log('🔍 Debug info:', {
+        title: article.title,
+        description: socialDescription,
+        image: finalImage,
+        url: currentUrl,
+        hasValidImage: finalImage !== 'https://i.postimg.cc/mgpyvymp/PONTO-DE-VISTA-3.png'
+      });
     };
 
-    // Executar atualização
-    updateAllMetaTags();
+    // Executar com pequeno delay para garantir que a página carregou
+    const timeoutId = setTimeout(updateAllMetaTags, 100);
 
-    // Cleanup function para restaurar valores padrão
+    // Cleanup
     return () => {
-      console.log('ArticleMetaTags: Limpando meta tags...');
-      
-      document.title = 'Blog Fala Pelizer - Educação Política e Cidadania';
-      
-      // Restaurar meta tags padrão
-      updateMetaTag('description', 'Educação política com opinião, clareza e posicionamento. Conteúdo que forma cidadãos conscientes e participativos.', false);
-      updateMetaTag('og:title', 'Blog Fala Pelizer - Educação Política e Cidadania');
-      updateMetaTag('og:description', 'Educação política com opinião, clareza e posicionamento. Conteúdo que forma cidadãos conscientes e participativos.');
-      updateMetaTag('og:type', 'website');
-      updateMetaTag('og:image', 'https://i.postimg.cc/mgpyvymp/PONTO-DE-VISTA-3.png');
-      updateMetaTag('og:image:alt', 'Blog Fala Pelizer - Educação Política e Cidadania');
-      updateMetaTag('twitter:title', 'Blog Fala Pelizer - Educação Política e Cidadania');
-      updateMetaTag('twitter:description', 'Educação política com opinião, clareza e posicionamento. Conteúdo que forma cidadãos conscientes e participativos.');
-      updateMetaTag('twitter:image', 'https://i.postimg.cc/mgpyvymp/PONTO-DE-VISTA-3.png');
-      updateMetaTag('twitter:card', 'summary_large_image');
-
-      // Remover dados estruturados
-      const script = document.querySelector('script[type="application/ld+json"]');
-      if (script) {
-        script.remove();
-      }
+      clearTimeout(timeoutId);
+      console.log('🧹 Limpando ArticleMetaTags...');
     };
   }, [article]);
 
